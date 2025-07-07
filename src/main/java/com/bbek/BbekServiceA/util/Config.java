@@ -24,7 +24,9 @@ public class Config {
     public static String getMinistryImagePath() {
         return getPropertyValue("system.ministry_filePath");
     }
-
+    public static String getEventImagePath() {
+        return getPropertyValue("system.event_filePath");
+    }
 
 
 //    public static String getApiUsername() {

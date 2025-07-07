@@ -2,14 +2,20 @@ package com.bbek.BbekServiceA.controllers;
 
 import com.bbek.BbekServiceA.entities.MinistryEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
+import com.bbek.BbekServiceA.model.MinistryModel;
 import com.bbek.BbekServiceA.serviceImp.MinistryServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static com.bbek.BbekServiceA.util.Constant.BBEK;
@@ -22,13 +28,43 @@ public class MinistryController {
     MinistryServiceImp serviceImp;
 
     @GetMapping("getAllMinistry")
-    public ResponseEntity<List<MinistryEntity>> getAllMinistry() {
+    public ResponseEntity<List<MinistryModel>> getAllMinistry() {
         try {
-            return new ResponseEntity<List<MinistryEntity>>(serviceImp.getAllMinistryList(), HttpStatus.OK);
+            return new ResponseEntity<List<MinistryModel>>(serviceImp.getAllMinistryList(), HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<List<MinistryEntity>>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<List<MinistryModel>>(HttpStatus.BAD_REQUEST);
         }
     }
+
+
+    @GetMapping("/ministry_image")
+    public ResponseEntity<byte[]> getImage(@RequestParam String ministryName) throws IOException {
+//        String sanitizedName = sanitize(ministryName);
+        String filename = serviceImp.getMinistryImage(ministryName);
+
+        if (filename == null || filename.isBlank()) {
+            return ResponseEntity.notFound().build(); // 404 if no filepath found
+        }
+
+        Path baseDir = Paths.get("C:/BBEK/FILES/").toAbsolutePath().normalize();
+        Path imagePath = baseDir.resolve(filename).normalize();
+
+        if (!imagePath.startsWith(baseDir) || !Files.exists(imagePath)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        byte[] imageBytes = Files.readAllBytes(imagePath);
+        String contentType = Files.probeContentType(imagePath);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream"));
+
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+    }
+
+
+
+
 
     @PostMapping(value = "/saveMinistry", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseModel> saveMinistry(
@@ -53,6 +89,9 @@ public class MinistryController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
+    public String sanitize(String input) {
+        return input.replaceAll("[^a-zA-Z0-9-_]", " ");
+    }
 
 
 }
