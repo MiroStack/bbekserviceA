@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class EventModel {
+    private long id;
     private String eventName;
     private String eventType;
     private String eventDate;
@@ -14,5 +15,5 @@ public class EventModel {
     private int attendance;
     private int offering;
     private String statusName;
-
+    private String description;
 }

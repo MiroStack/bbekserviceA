@@ -40,6 +40,7 @@ public class EventServiceImp implements EventService {
             Optional<EventStatusRfEntity> statusOptional = esRepo.findById(m.getId());
             String statusName = statusOptional.map(EventStatusRfEntity::getStatusName).orElse("Unknown");
             return new EventModel(
+                    m.getId(),
                     m.getEventName(),
                     m.getEventType(),
                     m.getEventDate(),
@@ -47,7 +48,8 @@ public class EventServiceImp implements EventService {
                     m.getEventLocation(),
                     m.getAttendance(),
                     m.getOffering(),
-                    statusName
+                    statusName,
+                    m.getDescription()
             );
         }).collect(Collectors.toList());
     }
@@ -83,6 +85,58 @@ public class EventServiceImp implements EventService {
 
         }
     }
+
+    @Override
+    public ApiResponseModel getEvent(Long id) {
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+          Optional<EventEntity> eEntityOPtional = eRepo.findById(id);
+          EventEntity eventEntity = eEntityOPtional.orElse(null);
+          if(eventEntity == null){
+              res.setMessage("Not found");
+              res.setStatusCode(404);
+              return res;
+          }
+          Optional<EventStatusRfEntity> esRfEntityOptional = esRepo.findById(eventEntity.getStatusId());
+          EventStatusRfEntity eventStatusRfEntity = esRfEntityOptional.orElse(null);
+          if(eventStatusRfEntity == null){
+              res.setMessage("Status Not found");
+              res.setStatusCode(404);
+              return res;
+          }
+          EventModel eventModel = new EventModel(
+             eventEntity.getId(),
+             eventEntity.getEventName(),
+             eventEntity.getEventType(),
+             eventEntity.getEventDate(),
+             eventEntity.getEvent_time(),
+             eventEntity.getEventLocation(),
+             eventEntity.getAttendance(),
+             eventEntity.getOffering(),
+             eventStatusRfEntity.getStatusName(),
+             eventEntity.getDescription()
+          );
+          res.setStatusCode(200);
+          res.setMessage(SUCCESS);
+          res.setData(eventModel);
+          return res;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public ApiResponseModel updateEvent(EventEntity entity, MultipartFile file) {
+        return null;
+    }
+
+    @Override
+    public ApiResponseModel deleteEvent(Long id) {
+        return null;
+    }
+
     @Override
     public String getEventImage(String eventName) {
         System.out.println(eventName);

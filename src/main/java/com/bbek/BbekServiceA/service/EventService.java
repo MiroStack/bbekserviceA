@@ -23,5 +23,11 @@ public interface EventService {
 //        int status_id,
 //        String filepath
    );
+   ApiResponseModel getEvent(Long id);
+   ApiResponseModel updateEvent(
+           EventEntity entity,
+           MultipartFile file
+   );
+   ApiResponseModel deleteEvent(Long id);
     public String getEventImage(String eventName);
 }

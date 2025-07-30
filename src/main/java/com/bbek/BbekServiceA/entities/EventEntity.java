@@ -30,7 +30,9 @@ public class EventEntity {
     @Column(name ="offering")
     private int offering;
     @Column(name = "status_id")
-    private int statusId;
+    private long statusId;
+    @Column(name="description")
+    private String description;
     @Column(name="filepath")
     private String filePath;
     @Column(name = "created_dt")
