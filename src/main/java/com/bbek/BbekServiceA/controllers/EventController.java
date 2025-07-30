@@ -91,4 +91,13 @@ public class EventController {
         return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
+    @GetMapping("getEvent")
+    public ResponseEntity<ApiResponseModel> getEvent(@RequestParam("id") long id){
+        try{
+            return new ResponseEntity<>(eService.getEvent(id),HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
