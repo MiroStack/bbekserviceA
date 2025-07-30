@@ -56,11 +56,12 @@ public class EventServiceImp implements EventService {
 
     @Override
     public ApiResponseModel saveEvent(   EventEntity entity,
-                                         MultipartFile file ) {
+                                         MultipartFile file,
+                                         boolean isUpdate) {
         ApiResponseModel res = new ApiResponseModel();
         try{
-            String ministryPath = Config.getEventImagePath();
-            String fileUploadPathImage = ministryPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
+            String eventPath = Config.getEventImagePath();
+            String fileUploadPathImage = eventPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
             File ROOT_BASE_PATH = new File(fileUploadPathImage);
             if(!ROOT_BASE_PATH.exists()){
                 ROOT_BASE_PATH.mkdirs();
@@ -72,8 +73,8 @@ public class EventServiceImp implements EventService {
             eRepo.save(entity);
             new SaveFile().saveFile(file, filePath);
 
-            res.setMessage(SUCCESS);
-            res.setStatusCode(201);
+            res.setMessage(isUpdate?"Event successfully updated.":"Event successfully created.");
+            res.setStatusCode(isUpdate?200:201);
             return res;
 
         } catch (Exception e) {
@@ -129,12 +130,52 @@ public class EventServiceImp implements EventService {
 
     @Override
     public ApiResponseModel updateEvent(EventEntity entity, MultipartFile file) {
-        return null;
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            String eventPath = Config.getEventImagePath();
+            String fileUploadPathImage = eventPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
+            File ROOT_BASE_PATH = new File(fileUploadPathImage);
+            if(!ROOT_BASE_PATH.exists()){
+                ROOT_BASE_PATH.mkdirs();
+            }
+            String[] ext = file.getOriginalFilename().split("\\.");
+            String filePath = fileUploadPathImage+"\\"+new Dates().getCurrentDateTime1()+"-"+new SaveFile().generateRandomString()+"."+ext[ext.length-1];
+            EventEntity entity1 = entity;
+            entity1.setFilePath(filePath);
+            eRepo.save(entity);
+            new SaveFile().saveFile(file, filePath);
+            res.setMessage("Event successfully updated.");
+            res.setStatusCode(200);
+            return res;
+
+        } catch (Exception e) {
+            eRepo.save(entity);
+            res.setMessage(FAILED);
+            res.setStatusCode(401);
+            e.printStackTrace();
+            return res;
+
+        }
     }
 
     @Override
     public ApiResponseModel deleteEvent(Long id) {
-        return null;
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            Optional<EventEntity> eventEntityOptional = eRepo.findById(id);
+            EventEntity eventEntity = eventEntityOptional.orElse(null);
+            if(eventEntity == null){
+                res.setMessage("Not found");
+                res.setStatusCode(404);
+                return res;
+            }
+            eRepo.delete(eventEntity);
+            res.setMessage("Event delete successfully.");
+            res.setStatusCode(200);
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

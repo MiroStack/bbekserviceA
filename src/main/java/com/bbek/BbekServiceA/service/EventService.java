@@ -12,7 +12,8 @@ public interface EventService {
     public List<EventModel> getAllevent();
    ApiResponseModel saveEvent(
           EventEntity entity,
-          MultipartFile file
+          MultipartFile file,
+          boolean isUpdate
 //        String eventName,
 //        String eventType,
 //        String eventDate,

@@ -31,6 +31,7 @@ public class EventController {
     EventServiceImp eService;
     @PostMapping(value = "/saveEvent", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseModel> saveMinistry(
+            @RequestParam("id") long id,
             @RequestParam("eventName") String eventName,
             @RequestParam("eventType") String eventType,
             @RequestParam("eventDate") String eventDate,
@@ -39,9 +40,14 @@ public class EventController {
             @RequestParam("attendance") int attendance,
             @RequestParam("offering") int offering,
             @RequestParam("status_id") int status_id,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("isUpdate") boolean isUpdate,
+             @RequestParam("file") MultipartFile file
+            ) {
         try{
             EventEntity entity = new EventEntity();
+            if(isUpdate){
+                entity.setId(id);
+            }
             entity.setEventName(eventName);
             entity.setEventType(eventType);
             entity.setEventDate(eventDate);
@@ -50,7 +56,7 @@ public class EventController {
             entity.setAttendance(attendance);
             entity.setOffering(offering);
             entity.setStatusId(status_id);
-            return new ResponseEntity<>(eService.saveEvent(entity, file), HttpStatus.OK);
+            return new ResponseEntity<>(eService.saveEvent(entity, file, isUpdate), HttpStatus.OK);
         } catch(RuntimeException e)
         {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
