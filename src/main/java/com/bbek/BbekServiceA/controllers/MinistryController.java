@@ -71,7 +71,7 @@ public class MinistryController {
             @RequestParam("id") long id,
             @RequestParam("schedule") String schedule,
             @RequestParam("leader") String leader,
-            @RequestParam("statusId") Integer statusId,
+            @RequestParam("statusName") String statusName,
             @RequestParam("ministryName") String ministryName,
             @RequestParam("description") String description,
             @RequestParam("member") Integer member,
@@ -84,11 +84,10 @@ public class MinistryController {
         }
         entity.setSchedule(schedule);
         entity.setLeader(leader);
-        entity.setStatusId(statusId);
         entity.setMinistryName(ministryName);
         entity.setDescription(description);
         entity.setMember(member);
-        return new ResponseEntity<>(serviceImp.saveMinistry(entity, isUpdate, file), HttpStatus.OK);
+        return new ResponseEntity<>(serviceImp.saveMinistry(entity,  isUpdate, statusName, file), HttpStatus.OK);
     } catch(RuntimeException e)
     {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

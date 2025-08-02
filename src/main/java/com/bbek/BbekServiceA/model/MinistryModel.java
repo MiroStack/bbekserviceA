@@ -14,7 +14,7 @@ public class MinistryModel {
 
     private String leader;
 
-    private int statusId;
+    private String statusName;
 
     private String ministryName;
 
@@ -26,11 +26,11 @@ public class MinistryModel {
 
     private String updatedDate;
 
-    public MinistryModel(long id, String schedule, String leader, int statusId, String ministryName, String description, int member, String createdDate, String updatedDate) {
+    public MinistryModel(long id, String schedule, String leader, String statusName, String ministryName, String description, int member, String createdDate, String updatedDate) {
         this.id = id;
         this.schedule = schedule;
         this.leader = leader;
-        this.statusId = statusId;
+        this.statusName = statusName;
         this.ministryName = ministryName;
         this.description = description;
         this.member = member;

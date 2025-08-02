@@ -1,9 +1,11 @@
 package com.bbek.BbekServiceA.serviceImp;
 
 import com.bbek.BbekServiceA.entities.MinistryEntity;
+import com.bbek.BbekServiceA.entities.MinistryStatusRfEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.MinistryModel;
 import com.bbek.BbekServiceA.repository.MinistryRepo;
+import com.bbek.BbekServiceA.repository.MinistryStatusRepo;
 import com.bbek.BbekServiceA.service.MinistryService;
 import com.bbek.BbekServiceA.util.Config;
 import com.bbek.BbekServiceA.util.Dates;
@@ -27,26 +29,35 @@ public class MinistryServiceImp implements MinistryService {
     @Autowired
     MinistryRepo mRepo;
 
+    @Autowired
+    MinistryStatusRepo msRepo;
+
     @Override
     public List<MinistryModel> getAllMinistryList() {
         List<MinistryEntity> ministryEntities = mRepo.findAll();
-        return ministryEntities.stream().map(m->new MinistryModel(
-                m.getId(),
-                m.getSchedule(),
-                m.getLeader(),
-                m.getStatusId(),
-                m.getMinistryName(),
-                m.getDescription(),
-                m.getMember(),
-                m.getCreatedDate(),
-                m.getUpdatedDate()
-        )).collect(Collectors.toList());
+        return ministryEntities.stream().map(m->{
+            Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(m.getStatusId());
+            MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
+            return new MinistryModel(
+                    m.getId(),
+                    m.getSchedule(),
+                    m.getLeader(),
+                    ministryStatusRfEntity.getStatusName(),
+                    m.getMinistryName(),
+                    m.getDescription(),
+                    m.getMember(),
+                    m.getCreatedDate(),
+                    m.getUpdatedDate()
+            );
+        }).collect(Collectors.toList());
     }
 
     @Override
-    public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, MultipartFile file) {
+    public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, String statusName, MultipartFile file) {
         ApiResponseModel res = new ApiResponseModel();
         try{
+            MinistryStatusRfEntity statusRfEntity = msRepo.findByStatusName(statusName);
+
             String ministryPath = Config.getMinistryImagePath();
             String fileUploadPathImage = ministryPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
             File ROOT_BASE_PATH = new File(fileUploadPathImage);
@@ -57,7 +68,9 @@ public class MinistryServiceImp implements MinistryService {
             String filePath = fileUploadPathImage+"\\"+new Dates().getCurrentDateTime1()+"-"+new SaveFile().generateRandomString()+"."+ext[ext.length-1];
             MinistryEntity entity1 = entity;
             entity1.setFilepath(filePath);
+            entity1.setStatusId(statusRfEntity.getId());
             mRepo.save(entity);
+
             new SaveFile().saveFile(file, filePath);
 
             res.setMessage(isUpdate?"Ministry is updated successfully":"Ministry is created successfully");
@@ -92,11 +105,18 @@ public class MinistryServiceImp implements MinistryService {
                 res.setMessage("Ministry not found");
                 return res;
             }
+            Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(ministryEntity.getStatusId());
+            MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
+            if((ministryStatusRfEntity == null)){
+                res.setStatusCode(404);
+                res.setMessage("Status not found");
+                return res;
+            }
             MinistryModel model = new MinistryModel(
                 ministryEntity.getId(),
                 ministryEntity.getSchedule(),
                 ministryEntity.getLeader(),
-                ministryEntity.getStatusId(),
+                ministryStatusRfEntity.getStatusName(),
                 ministryEntity.getMinistryName(),
                 ministryEntity.getDescription(),
                 ministryEntity.getMember(),

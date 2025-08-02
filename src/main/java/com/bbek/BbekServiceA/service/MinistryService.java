@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface MinistryService {
     public List<MinistryModel> getAllMinistryList();
-    public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, MultipartFile file);
+    public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, String statusName, MultipartFile file);
     public String getMinistryImage(String ministryName);
     ApiResponseModel getMinistry(Long id);
     ApiResponseModel deleteMinistry(Long id);

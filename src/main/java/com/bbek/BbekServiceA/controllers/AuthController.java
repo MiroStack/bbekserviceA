@@ -7,6 +7,7 @@ import com.bbek.BbekServiceA.service.AuthService;
 import com.bbek.BbekServiceA.serviceImp.JWTService;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.bbek.BbekServiceA.util.Constant.BBEK;
+import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
 
 @RestController
 @RequestMapping(BBEK)
@@ -44,10 +46,13 @@ public class AuthController {
     }
 
     @GetMapping("/validate")
-    public ResponseEntity<?> validateToken(@RequestParam String token) {
+    public ResponseEntity<ApiResponseModel> validateToken(@RequestParam String token) {
+        ApiResponseModel res = new ApiResponseModel();
         Claims claims = jwtService.extractUserClaims(token);
         if (claims == null) {
-            return ResponseEntity.status(401).body("Invalid Token");
+            res.setStatusCode(401);
+            res.setMessage("Invalid Token");
+            return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
         }
         String username = claims.get("username", String.class);
         String fullname = claims.get("fullname", String.class);
@@ -58,6 +63,9 @@ public class AuthController {
         userInfo.put("username", username);
         userInfo.put("role", role);
         userInfo.put("fullname", fullname);
-        return ResponseEntity.ok(userInfo);
+        res.setData(userInfo);
+        res.setStatusCode(200);
+        res.setMessage(SUCCESS);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

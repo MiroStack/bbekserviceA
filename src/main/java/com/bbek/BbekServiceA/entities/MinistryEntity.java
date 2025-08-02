@@ -19,7 +19,7 @@ public class MinistryEntity {
     private String leader;
 
     @Column(name = "status_id")
-    private int statusId;
+    private Long statusId;
 
     @Column(name = "ministry_name")
     private String ministryName;
