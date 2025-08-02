@@ -16,6 +16,7 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.bbek.BbekServiceA.util.Constant.FAILED;
@@ -30,6 +31,7 @@ public class MinistryServiceImp implements MinistryService {
     public List<MinistryModel> getAllMinistryList() {
         List<MinistryEntity> ministryEntities = mRepo.findAll();
         return ministryEntities.stream().map(m->new MinistryModel(
+                m.getId(),
                 m.getSchedule(),
                 m.getLeader(),
                 m.getStatusId(),
@@ -42,7 +44,7 @@ public class MinistryServiceImp implements MinistryService {
     }
 
     @Override
-    public ApiResponseModel saveMinistry(MinistryEntity entity, MultipartFile file) {
+    public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, MultipartFile file) {
         ApiResponseModel res = new ApiResponseModel();
         try{
             String ministryPath = Config.getMinistryImagePath();
@@ -58,8 +60,8 @@ public class MinistryServiceImp implements MinistryService {
             mRepo.save(entity);
             new SaveFile().saveFile(file, filePath);
 
-            res.setMessage(SUCCESS);
-            res.setStatusCode(201);
+            res.setMessage(isUpdate?"Ministry is updated successfully":"Ministry is created successfully");
+            res.setStatusCode(isUpdate?200:201);
             return res;
 
         } catch (Exception e) {
@@ -77,5 +79,60 @@ public class MinistryServiceImp implements MinistryService {
     public String getMinistryImage(String ministryName) {
         System.out.println(ministryName);
         return mRepo.findFilePathByName(ministryName);
+    }
+
+    @Override
+    public ApiResponseModel getMinistry(Long id) {
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            Optional<MinistryEntity> ministryEntityOptional = mRepo.findById(id);
+            MinistryEntity ministryEntity = ministryEntityOptional.orElse(null);
+            if(ministryEntity == null){
+                res.setStatusCode(404);
+                res.setMessage("Ministry not found");
+                return res;
+            }
+            MinistryModel model = new MinistryModel(
+                ministryEntity.getId(),
+                ministryEntity.getSchedule(),
+                ministryEntity.getLeader(),
+                ministryEntity.getStatusId(),
+                ministryEntity.getMinistryName(),
+                ministryEntity.getDescription(),
+                ministryEntity.getMember(),
+                ministryEntity.getCreatedDate(),
+                ministryEntity.getUpdatedDate()
+            );
+            res.setData(model);
+            res.setMessage(SUCCESS);
+            res.setStatusCode(200);
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public ApiResponseModel deleteMinistry(Long id) {
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            Optional<MinistryEntity> ministryEntityOptional = mRepo.findById(id);
+            MinistryEntity ministryEntity = ministryEntityOptional.orElse(null);
+            if(ministryEntity == null){
+                res.setStatusCode(404);
+                res.setMessage("Ministry not found");
+                return res;
+            }
+            mRepo.delete(ministryEntity);
+            res.setMessage("Ministry deleted successfully");
+            res.setStatusCode(200);
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
     }
 }

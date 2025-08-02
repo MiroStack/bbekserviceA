@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 public class MinistryModel {
-
+    private long id;
 
     private String schedule;
 
@@ -26,7 +26,8 @@ public class MinistryModel {
 
     private String updatedDate;
 
-    public MinistryModel(String schedule, String leader, int statusId, String ministryName, String description, int member, String createdDate, String updatedDate) {
+    public MinistryModel(long id, String schedule, String leader, int statusId, String ministryName, String description, int member, String createdDate, String updatedDate) {
+        this.id = id;
         this.schedule = schedule;
         this.leader = leader;
         this.statusId = statusId;

@@ -68,27 +68,52 @@ public class MinistryController {
 
     @PostMapping(value = "/saveMinistry", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseModel> saveMinistry(
+            @RequestParam("id") long id,
             @RequestParam("schedule") String schedule,
             @RequestParam("leader") String leader,
             @RequestParam("statusId") Integer statusId,
             @RequestParam("ministryName") String ministryName,
             @RequestParam("description") String description,
             @RequestParam("member") Integer member,
+            @RequestParam("isUpdate") boolean isUpdate,
             @RequestParam("file") MultipartFile file) {
     try{
         MinistryEntity entity = new MinistryEntity();
+        if(isUpdate){
+            entity.setId(id);
+        }
         entity.setSchedule(schedule);
         entity.setLeader(leader);
         entity.setStatusId(statusId);
         entity.setMinistryName(ministryName);
         entity.setDescription(description);
         entity.setMember(member);
-        return new ResponseEntity<>(serviceImp.saveMinistry(entity, file), HttpStatus.OK);
+        return new ResponseEntity<>(serviceImp.saveMinistry(entity, isUpdate, file), HttpStatus.OK);
     } catch(RuntimeException e)
     {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
+   @GetMapping("getMinistry")
+   public ResponseEntity<ApiResponseModel> getMinistry(Long id){
+        try{
+            return new ResponseEntity<>(serviceImp.getMinistry(id),HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+   }
+
+    @DeleteMapping("deleteMinistry")
+    public ResponseEntity<ApiResponseModel> deleteMinistry(Long id){
+        try{
+            return new ResponseEntity<>(serviceImp.deleteMinistry(id),HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
     public String sanitize(String input) {
         return input.replaceAll("[^a-zA-Z0-9-_]", " ");
     }
