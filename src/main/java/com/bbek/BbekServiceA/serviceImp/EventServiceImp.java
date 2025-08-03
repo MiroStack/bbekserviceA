@@ -57,9 +57,16 @@ public class EventServiceImp implements EventService {
     @Override
     public ApiResponseModel saveEvent(   EventEntity entity,
                                          MultipartFile file,
-                                         boolean isUpdate) {
+                                         boolean isUpdate,
+                                         String statusName) {
         ApiResponseModel res = new ApiResponseModel();
         try{
+            EventStatusRfEntity eventStatusRfEntity= esRepo.findByStatusName(statusName);
+            if(eventStatusRfEntity == null){
+                res.setMessage("Status not found");
+                res.setStatusCode(404);
+                return res;
+            }
             String eventPath = Config.getEventImagePath();
             String fileUploadPathImage = eventPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
             File ROOT_BASE_PATH = new File(fileUploadPathImage);
@@ -70,6 +77,7 @@ public class EventServiceImp implements EventService {
             String filePath = fileUploadPathImage+"\\"+new Dates().getCurrentDateTime1()+"-"+new SaveFile().generateRandomString()+"."+ext[ext.length-1];
             EventEntity entity1 = entity;
             entity1.setFilePath(filePath);
+            entity1.setStatusId(eventStatusRfEntity.getId());
             eRepo.save(entity);
             new SaveFile().saveFile(file, filePath);
 

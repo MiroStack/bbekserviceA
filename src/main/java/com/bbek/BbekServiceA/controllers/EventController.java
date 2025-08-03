@@ -39,7 +39,8 @@ public class EventController {
             @RequestParam("eventLocation") String eventLocation,
             @RequestParam("attendance") int attendance,
             @RequestParam("offering") int offering,
-            @RequestParam("status_id") int status_id,
+            @RequestParam("description") String description,
+            @RequestParam("statusName") String statusName,
             @RequestParam("isUpdate") boolean isUpdate,
              @RequestParam("file") MultipartFile file
             ) {
@@ -55,8 +56,9 @@ public class EventController {
             entity.setEventLocation(eventLocation);
             entity.setAttendance(attendance);
             entity.setOffering(offering);
-            entity.setStatusId(status_id);
-            return new ResponseEntity<>(eService.saveEvent(entity, file, isUpdate), HttpStatus.OK);
+            entity.setDescription(description);
+
+            return new ResponseEntity<>(eService.saveEvent(entity, file, isUpdate, statusName), HttpStatus.OK);
         } catch(RuntimeException e)
         {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -101,6 +103,15 @@ public class EventController {
     public ResponseEntity<ApiResponseModel> getEvent(@RequestParam("id") long id){
         try{
             return new ResponseEntity<>(eService.getEvent(id),HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("deleteEvent")
+    public ResponseEntity<ApiResponseModel> deleteEvent(@RequestParam("id") Long id){
+        try{
+            return new ResponseEntity<>(eService.deleteEvent(id),HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

@@ -13,7 +13,8 @@ public interface EventService {
    ApiResponseModel saveEvent(
           EventEntity entity,
           MultipartFile file,
-          boolean isUpdate
+          boolean isUpdate,
+          String statusName
 //        String eventName,
 //        String eventType,
 //        String eventDate,
