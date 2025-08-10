@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.bbek.BbekServiceA.util.Constant.BBEK;
@@ -34,8 +36,8 @@ public class EventController {
             @RequestParam("id") long id,
             @RequestParam("eventName") String eventName,
             @RequestParam("eventType") String eventType,
-            @RequestParam("eventDate") String eventDate,
-            @RequestParam("eventTime") String eventTime,
+            @RequestParam("eventStartDate") String eventStartDate,
+            @RequestParam("eventEndDate") String eventEndDate,
             @RequestParam("eventLocation") String eventLocation,
             @RequestParam("attendance") int attendance,
             @RequestParam("offering") int offering,
@@ -51,8 +53,8 @@ public class EventController {
             }
             entity.setEventName(eventName);
             entity.setEventType(eventType);
-            entity.setEventDate(eventDate);
-            entity.setEvent_time(eventTime);
+            entity.setEventStartDate(LocalDateTime.parse(eventStartDate));
+            entity.setEventEndDate(LocalDateTime.parse(eventEndDate));
             entity.setEventLocation(eventLocation);
             entity.setAttendance(attendance);
             entity.setOffering(offering);

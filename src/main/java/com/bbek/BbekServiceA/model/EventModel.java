@@ -1,7 +1,11 @@
 package com.bbek.BbekServiceA.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -9,8 +13,10 @@ public class EventModel {
     private long id;
     private String eventName;
     private String eventType;
-    private String eventDate;
-    private String eventTime;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime eventStartDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime eventEndDate;
     private String eventLocation;
     private int attendance;
     private int offering;

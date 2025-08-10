@@ -1,9 +1,14 @@
 package com.bbek.BbekServiceA.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 
 @Entity
 @Data
@@ -19,10 +24,6 @@ public class EventEntity {
     private String eventName;
     @Column(name="event_type")
     private String eventType;
-    @Column(name="event_date")
-    private String eventDate;
-    @Column(name = "event_time")
-    private String event_time;
     @Column(name= "event_location")
     private String eventLocation;
     @Column(name = "attendance")
@@ -39,4 +40,11 @@ public class EventEntity {
     private String createdDate;
     @Column(name="update_dt")
     private String updateDate;
+    @Column(name="event_end_date")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime eventEndDate;
+    @Column(name="event_start_date")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime eventStartDate;
+
 }

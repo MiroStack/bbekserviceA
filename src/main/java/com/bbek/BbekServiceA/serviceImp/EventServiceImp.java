@@ -36,33 +36,37 @@ public class EventServiceImp implements EventService {
     @Override
     public List<EventModel> getAllevent() {
         List<EventEntity> eventEntities = eRepo.findAll();
-        return eventEntities.stream().map(m->{
-            Optional<EventStatusRfEntity> statusOptional = esRepo.findById(m.getId());
-            String statusName = statusOptional.map(EventStatusRfEntity::getStatusName).orElse("Unknown");
-            return new EventModel(
-                    m.getId(),
-                    m.getEventName(),
-                    m.getEventType(),
-                    m.getEventDate(),
-                    m.getEvent_time(),
-                    m.getEventLocation(),
-                    m.getAttendance(),
-                    m.getOffering(),
-                    statusName,
-                    m.getDescription()
-            );
-        }).collect(Collectors.toList());
+        try{
+            return eventEntities.stream().map(m -> {
+                Optional<EventStatusRfEntity> statusOptional = esRepo.findById(m.getStatusId());
+                String statusName = statusOptional.map(EventStatusRfEntity::getStatusName).orElse("Unknown");
+                return new EventModel(
+                        m.getId(),
+                        m.getEventName(),
+                        m.getEventType(),
+                        m.getEventStartDate(),
+                        m.getEventEndDate(),
+                        m.getEventLocation(),
+                        m.getAttendance(),
+                        m.getOffering(),
+                        statusName,
+                        m.getDescription()
+                );
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public ApiResponseModel saveEvent(   EventEntity entity,
-                                         MultipartFile file,
-                                         boolean isUpdate,
-                                         String statusName) {
+    public ApiResponseModel saveEvent(EventEntity entity,
+                                      MultipartFile file,
+                                      boolean isUpdate,
+                                      String statusName) {
         ApiResponseModel res = new ApiResponseModel();
-        try{
-            EventStatusRfEntity eventStatusRfEntity= esRepo.findByStatusName(statusName);
-            if(eventStatusRfEntity == null){
+        try {
+            EventStatusRfEntity eventStatusRfEntity = esRepo.findByStatusName(statusName);
+            if (eventStatusRfEntity == null) {
                 res.setMessage("Status not found");
                 res.setStatusCode(404);
                 return res;
@@ -70,19 +74,19 @@ public class EventServiceImp implements EventService {
             String eventPath = Config.getEventImagePath();
             String fileUploadPathImage = eventPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
             File ROOT_BASE_PATH = new File(fileUploadPathImage);
-            if(!ROOT_BASE_PATH.exists()){
+            if (!ROOT_BASE_PATH.exists()) {
                 ROOT_BASE_PATH.mkdirs();
             }
             String[] ext = file.getOriginalFilename().split("\\.");
-            String filePath = fileUploadPathImage+"\\"+new Dates().getCurrentDateTime1()+"-"+new SaveFile().generateRandomString()+"."+ext[ext.length-1];
+            String filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
             EventEntity entity1 = entity;
             entity1.setFilePath(filePath);
             entity1.setStatusId(eventStatusRfEntity.getId());
             eRepo.save(entity);
             new SaveFile().saveFile(file, filePath);
 
-            res.setMessage(isUpdate?"Event successfully updated.":"Event successfully created.");
-            res.setStatusCode(isUpdate?200:201);
+            res.setMessage(isUpdate ? "Event successfully updated." : "Event successfully created.");
+            res.setStatusCode(isUpdate ? 200 : 201);
             return res;
 
         } catch (Exception e) {
@@ -98,37 +102,37 @@ public class EventServiceImp implements EventService {
     @Override
     public ApiResponseModel getEvent(Long id) {
         ApiResponseModel res = new ApiResponseModel();
-        try{
-          Optional<EventEntity> eEntityOPtional = eRepo.findById(id);
-          EventEntity eventEntity = eEntityOPtional.orElse(null);
-          if(eventEntity == null){
-              res.setMessage("Not found");
-              res.setStatusCode(404);
-              return res;
-          }
-          Optional<EventStatusRfEntity> esRfEntityOptional = esRepo.findById(eventEntity.getStatusId());
-          EventStatusRfEntity eventStatusRfEntity = esRfEntityOptional.orElse(null);
-          if(eventStatusRfEntity == null){
-              res.setMessage("Status Not found");
-              res.setStatusCode(404);
-              return res;
-          }
-          EventModel eventModel = new EventModel(
-             eventEntity.getId(),
-             eventEntity.getEventName(),
-             eventEntity.getEventType(),
-             eventEntity.getEventDate(),
-             eventEntity.getEvent_time(),
-             eventEntity.getEventLocation(),
-             eventEntity.getAttendance(),
-             eventEntity.getOffering(),
-             eventStatusRfEntity.getStatusName(),
-             eventEntity.getDescription()
-          );
-          res.setStatusCode(200);
-          res.setMessage(SUCCESS);
-          res.setData(eventModel);
-          return res;
+        try {
+            Optional<EventEntity> eEntityOPtional = eRepo.findById(id);
+            EventEntity eventEntity = eEntityOPtional.orElse(null);
+            if (eventEntity == null) {
+                res.setMessage("Not found");
+                res.setStatusCode(404);
+                return res;
+            }
+            Optional<EventStatusRfEntity> esRfEntityOptional = esRepo.findById(eventEntity.getStatusId());
+            EventStatusRfEntity eventStatusRfEntity = esRfEntityOptional.orElse(null);
+            if (eventStatusRfEntity == null) {
+                res.setMessage("Status Not found");
+                res.setStatusCode(404);
+                return res;
+            }
+            EventModel eventModel = new EventModel(
+                    eventEntity.getId(),
+                    eventEntity.getEventName(),
+                    eventEntity.getEventType(),
+                    eventEntity.getEventStartDate(),
+                    eventEntity.getEventEndDate(),
+                    eventEntity.getEventLocation(),
+                    eventEntity.getAttendance(),
+                    eventEntity.getOffering(),
+                    eventStatusRfEntity.getStatusName(),
+                    eventEntity.getDescription()
+            );
+            res.setStatusCode(200);
+            res.setMessage(SUCCESS);
+            res.setData(eventModel);
+            return res;
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -139,15 +143,15 @@ public class EventServiceImp implements EventService {
     @Override
     public ApiResponseModel updateEvent(EventEntity entity, MultipartFile file) {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             String eventPath = Config.getEventImagePath();
             String fileUploadPathImage = eventPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
             File ROOT_BASE_PATH = new File(fileUploadPathImage);
-            if(!ROOT_BASE_PATH.exists()){
+            if (!ROOT_BASE_PATH.exists()) {
                 ROOT_BASE_PATH.mkdirs();
             }
             String[] ext = file.getOriginalFilename().split("\\.");
-            String filePath = fileUploadPathImage+"\\"+new Dates().getCurrentDateTime1()+"-"+new SaveFile().generateRandomString()+"."+ext[ext.length-1];
+            String filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
             EventEntity entity1 = entity;
             entity1.setFilePath(filePath);
             eRepo.save(entity);
@@ -169,10 +173,10 @@ public class EventServiceImp implements EventService {
     @Override
     public ApiResponseModel deleteEvent(Long id) {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             Optional<EventEntity> eventEntityOptional = eRepo.findById(id);
             EventEntity eventEntity = eventEntityOptional.orElse(null);
-            if(eventEntity == null){
+            if (eventEntity == null) {
                 res.setMessage("Not found");
                 res.setStatusCode(404);
                 return res;
