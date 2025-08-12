@@ -52,7 +52,6 @@ public class AuthServiceImp implements AuthService {
                 res.setStatusCode(404);
                 return res;
             }else{
-
                 Long roleId = (long) user.getRole_id();
                 Optional<RoleModel> roleModelOptional = roleRepo.findById(roleId);
                 if(roleModelOptional.isPresent()){

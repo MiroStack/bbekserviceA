@@ -43,7 +43,7 @@ public class SecurityConfig {
         return http
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/bbek/validate/**", "/bbek/register/**", "/bbek/login/**", "/bbek/getAllMinistry/**", "/bbek/filename/**","/bbek/ministry_image/**","/bbek/event_image/**", "/bbek/getAllEvent/**")
+                        .requestMatchers("/bbek/validate/**", "/bbek/register/**", "/bbek/login/**", "/bbek/getAllMinistry/**", "/bbek/filename/**","/bbek/ministry_image/**","/bbek/event_image/**", "/bbek/getAllEvent/**", "/bbek/upcomingEvents")
                         .permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
@@ -60,7 +60,6 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("http://localhost:5173/")); // ✅ Adjust if needed
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

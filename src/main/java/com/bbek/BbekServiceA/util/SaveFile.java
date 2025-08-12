@@ -16,9 +16,6 @@ public class SaveFile {
     public void saveFile(MultipartFile file, String filePath) throws IOException {
 
         try {
-
-
-
             byte[] data = file.getBytes();
             Path path = Paths.get(filePath);
             Files.write(path, data);

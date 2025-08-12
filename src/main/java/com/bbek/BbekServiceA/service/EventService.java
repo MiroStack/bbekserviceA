@@ -32,4 +32,6 @@ public interface EventService {
    );
    ApiResponseModel deleteEvent(Long id);
     public String getEventImage(String eventName);
+
+    ApiResponseModel getUpcomingEvent();
 }

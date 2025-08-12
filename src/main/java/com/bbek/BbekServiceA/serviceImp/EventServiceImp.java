@@ -195,4 +195,35 @@ public class EventServiceImp implements EventService {
         System.out.println(eventName);
         return eRepo.findFilePathByName(eventName);
     }
+
+    @Override
+    public ApiResponseModel getUpcomingEvent() {
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            List<EventEntity> entity = eRepo.findUpcomingEvent();
+            List<EventModel> eventModel = entity.stream().map(m ->{
+                Optional<EventStatusRfEntity> statusOptional = esRepo.findById(m.getStatusId());
+                String statusName = statusOptional.map(EventStatusRfEntity::getStatusName).orElse("Unknown");
+                return new EventModel(
+                        m.getId(),
+                        m.getEventName(),
+                        m.getEventType(),
+                        m.getEventStartDate(),
+                        m.getEventEndDate(),
+                        m.getEventLocation(),
+                        m.getAttendance(),
+                        m.getOffering(),
+                        statusName,
+                        m.getDescription()
+                );
+            }).toList();
+
+            res.setData(eventModel);
+            res.setMessage(SUCCESS);
+            res.setStatusCode(200);
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

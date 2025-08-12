@@ -119,4 +119,13 @@ public class EventController {
         }
     }
 
+    @GetMapping("upcomingEvents")
+    public ResponseEntity<ApiResponseModel> upcomingEvents(){
+        try{
+            return new ResponseEntity<>(eService.getUpcomingEvent(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

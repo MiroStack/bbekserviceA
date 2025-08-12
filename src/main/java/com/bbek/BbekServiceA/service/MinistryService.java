@@ -13,4 +13,5 @@ public interface MinistryService {
     public String getMinistryImage(String ministryName);
     ApiResponseModel getMinistry(Long id);
     ApiResponseModel deleteMinistry(Long id);
+    ApiResponseModel getUpcomingMinistry();
 }

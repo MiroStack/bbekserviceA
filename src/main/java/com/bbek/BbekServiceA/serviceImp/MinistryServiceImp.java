@@ -155,4 +155,14 @@ public class MinistryServiceImp implements MinistryService {
         }
 
     }
+
+    @Override
+    public ApiResponseModel getUpcomingMinistry() {
+        try{
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
 }
