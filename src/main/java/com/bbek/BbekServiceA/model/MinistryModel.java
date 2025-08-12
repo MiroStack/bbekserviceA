@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 public class MinistryModel {
     private long id;
@@ -22,11 +24,11 @@ public class MinistryModel {
 
     private int member;
 
-    private String createdDate;
+    private LocalDateTime createdDate;
 
-    private String updatedDate;
+    private LocalDateTime updatedDate;
 
-    public MinistryModel(long id, String schedule, String leader, String statusName, String ministryName, String description, int member, String createdDate, String updatedDate) {
+    public MinistryModel(long id, String schedule, String leader, String statusName, String ministryName, String description, int member, LocalDateTime createdDate, LocalDateTime updatedDate) {
         this.id = id;
         this.schedule = schedule;
         this.leader = leader;

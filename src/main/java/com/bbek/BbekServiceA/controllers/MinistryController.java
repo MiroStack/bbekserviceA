@@ -111,6 +111,15 @@ public class MinistryController {
         }
     }
 
+    @GetMapping("getUpcomingMinistry")
+    public ResponseEntity<ApiResponseModel> getUpcomingMinistry(){
+        try{
+            return new ResponseEntity<>(serviceImp.getUpcomingMinistry(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 
     public String sanitize(String input) {

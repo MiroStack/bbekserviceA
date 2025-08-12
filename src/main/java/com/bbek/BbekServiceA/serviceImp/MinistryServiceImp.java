@@ -69,6 +69,11 @@ public class MinistryServiceImp implements MinistryService {
             MinistryEntity entity1 = entity;
             entity1.setFilepath(filePath);
             entity1.setStatusId(statusRfEntity.getId());
+            if(isUpdate){
+                entity1.setUpdatedDate(LocalDateTime.now());
+            }else{
+                entity1.setCreatedDate(LocalDateTime.now());
+            }
             mRepo.save(entity);
 
             new SaveFile().saveFile(file, filePath);
@@ -158,11 +163,31 @@ public class MinistryServiceImp implements MinistryService {
 
     @Override
     public ApiResponseModel getUpcomingMinistry() {
+        ApiResponseModel res = new ApiResponseModel();
         try{
-
+           List<MinistryEntity> entities = mRepo.findUpcomingMinistry();
+           List<MinistryModel> ministryModelList = entities.stream().map(m->{
+               Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(m.getStatusId());
+               MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
+               return new MinistryModel(
+                       m.getId(),
+                       m.getSchedule(),
+                       m.getLeader(),
+                       ministryStatusRfEntity.getStatusName(),
+                       m.getMinistryName(),
+                       m.getDescription(),
+                       m.getMember(),
+                       m.getCreatedDate(),
+                       m.getUpdatedDate()
+               );
+           }).toList();
+           res.setMessage(SUCCESS);
+           res.setStatusCode(200);
+           res.setData(ministryModelList);
+           return res;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return null;
+
     }
 }
