@@ -56,6 +56,7 @@ public class AuthController {
         }
         String username = claims.get("username", String.class);
         String fullname = claims.get("fullname", String.class);
+        String email = claims.get("email", String.class);
         String role = claims.get("role", String.class);
 
 
@@ -63,6 +64,7 @@ public class AuthController {
         userInfo.put("username", username);
         userInfo.put("role", role);
         userInfo.put("fullname", fullname);
+        userInfo.put("email", email);
         res.setData(userInfo);
         res.setStatusCode(200);
         res.setMessage(SUCCESS);

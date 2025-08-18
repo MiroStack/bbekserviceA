@@ -63,11 +63,13 @@ public class AuthServiceImp implements AuthService {
                     tokenModel.setUsername(username);
                     tokenModel.setRoleName(roleName);
                     tokenModel.setFullName(fullName);
+                    tokenModel.setEmail(profileModel.getEmail());
                     String token = verify(tokenModel, password);
                     LoginResponseModel model = new LoginResponseModel();
                     model.setToken(token);
                     model.setRole(roleName);
                     model.setFullName(fullName);
+                    model.setEmail(profileModel.getEmail());
                     res.setStatusCode(200);
                     res.setMessage(SUCCESS);
                     res.setData(model);

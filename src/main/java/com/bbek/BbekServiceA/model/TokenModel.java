@@ -7,4 +7,5 @@ public class TokenModel {
   private String username;
   private String roleName;
   private String fullName;
+  private String email;
 }
