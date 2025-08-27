@@ -26,9 +26,31 @@ public class OfferingController {
         }
     }
     @PostMapping("submitOffering")
-    ResponseEntity<ApiResponseModel> submitOffering(@RequestBody OfferingModel model){
+    ResponseEntity<ApiResponseModel> submitOffering(@RequestBody OfferingModel model, boolean isUpdated, Long id){
         try{
-            return new ResponseEntity<>(serviceImp.submitOffering(model), HttpStatus.OK);
+
+                return new ResponseEntity<>(serviceImp.submitOffering(model, isUpdated), HttpStatus.OK);
+
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("getPaymentRf")
+    ResponseEntity<ApiResponseModel> getPaymentRf(){
+        try{
+            return new ResponseEntity<>(serviceImp.getAllPaymentTypeRf(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @GetMapping("getOfferingType")
+    ResponseEntity<ApiResponseModel> getOfferingRf(){
+        try{
+            return new ResponseEntity<>(serviceImp.getAllOfferingTypeRf(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

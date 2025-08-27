@@ -42,7 +42,7 @@ public class OfferingServiceImp implements OfferingService {
                         m.getMemberName(),
                         m.getAmount(),
                         m.getOfferingDate(),
-                        offeringTypeRfEntity.getOfferingTypeName(),
+                        offeringTypeRfEntity.getOfferingType(),
                         offeringPaymentRfEntity.getPaymentMethod(),
                         m.getNotes()
                 );
@@ -57,10 +57,10 @@ public class OfferingServiceImp implements OfferingService {
     }
 
     @Override
-    public ApiResponseModel submitOffering(OfferingModel m) {
+    public ApiResponseModel submitOffering(OfferingModel m, boolean isUpdate) {
         ApiResponseModel res = new ApiResponseModel();
         try{
-            OfferingTypeRfEntity offeringTypeRfEntity = otRepo.findByOfferingTypeName(m.getOfferingType());
+            OfferingTypeRfEntity offeringTypeRfEntity = otRepo.findByOfferingType(m.getOfferingType());
             OfferingPaymentRfEntity offeringPaymentRfEntity = opRepo.findByPaymentMethod(m.getPaymentMethod());
             if(offeringPaymentRfEntity == null || offeringTypeRfEntity ==null){
                 res.setMessage("Invalid payment method of type.");
@@ -68,15 +68,18 @@ public class OfferingServiceImp implements OfferingService {
                 return res;
             }
             OfferingEntity offeringEntity = new OfferingEntity();
+            if(isUpdate){
+                offeringEntity.setId(m.getId());
+            }
             offeringEntity.setMemberName(m.getMemberName());
             offeringEntity.setAmount(m.getAmount());
             offeringEntity.setOfferingDate(m.getOfferingDate());
-            offeringEntity.setOfferingType(m.getId());
+            offeringEntity.setOfferingType(offeringTypeRfEntity.getId());
             offeringEntity.setPaymentMethod(offeringPaymentRfEntity.getId());
             offeringEntity.setNotes(m.getNotes());
             oRepo.save(offeringEntity);
-            res.setStatusCode(201);
-            res.setMessage(SUCCESS);
+            res.setStatusCode(!isUpdate?201:200);
+            res.setMessage(!isUpdate?"Donation saved successfully.":"Record updated successfully.");
             return res;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -96,5 +99,35 @@ public class OfferingServiceImp implements OfferingService {
     @Override
     public ApiResponseModel deleteOffering(Long id) {
         return null;
+    }
+
+    @Override
+    public ApiResponseModel getAllPaymentTypeRf() {
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            List<OfferingPaymentRfEntity> paymentTypeList = opRepo.findAll();
+            res.setData(paymentTypeList);
+            res.setStatusCode(200);
+            res.setMessage(SUCCESS);
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ApiResponseModel getAllOfferingTypeRf() {
+        ApiResponseModel res = new ApiResponseModel();
+        try {
+            List<OfferingTypeRfEntity> offeringTypeList = otRepo.findAll();
+            res.setData(offeringTypeList);
+            res.setMessage(SUCCESS);
+            res.setStatusCode(200);
+            return res;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

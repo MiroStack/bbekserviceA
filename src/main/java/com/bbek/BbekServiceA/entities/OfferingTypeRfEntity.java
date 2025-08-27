@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(name="rf_offering_status")
+@Table(name="rf_offering_type")
 @AllArgsConstructor
 @NoArgsConstructor
 public class OfferingTypeRfEntity {
@@ -16,7 +16,7 @@ public class OfferingTypeRfEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name="offering_typename")
-    private String offeringTypeName;
+    @Column(name="offering_type")
+    private String offeringType;
 
 }

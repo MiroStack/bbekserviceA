@@ -12,6 +12,6 @@ public class OfferingPaymentRfEntity {
     @Column(name="id")
     private Long id;
 
-    @Column(name="payment_mehtod")
+    @Column(name="payment_method")
     private String paymentMethod;
 }

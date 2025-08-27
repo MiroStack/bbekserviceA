@@ -5,8 +5,10 @@ import com.bbek.BbekServiceA.model.OfferingModel;
 
 public interface OfferingService {
     ApiResponseModel getAllOffering();
-    ApiResponseModel submitOffering(OfferingModel offeringModel);
+    ApiResponseModel submitOffering(OfferingModel offeringModel, boolean isUpdate);
     ApiResponseModel updateOfferingDetails();
     ApiResponseModel getOffering(Long id);
     ApiResponseModel deleteOffering(Long id);
+    ApiResponseModel getAllPaymentTypeRf();
+    ApiResponseModel getAllOfferingTypeRf();
 }

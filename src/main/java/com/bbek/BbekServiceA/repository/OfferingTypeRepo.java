@@ -5,5 +5,5 @@ import com.bbek.BbekServiceA.entities.OfferingTypeRfEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OfferingTypeRepo extends JpaRepository<OfferingTypeRfEntity, Long> {
-   OfferingTypeRfEntity findByOfferingTypeName(String typeName);
+   OfferingTypeRfEntity findByOfferingType(String type);
 }
