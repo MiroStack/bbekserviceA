@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalTime;
 import java.util.List;
 
 import static com.bbek.BbekServiceA.util.Constant.BBEK;
@@ -75,6 +76,8 @@ public class MinistryController {
             @RequestParam("ministryName") String ministryName,
             @RequestParam("description") String description,
             @RequestParam("member") Integer member,
+            @RequestParam("startTime") LocalTime startTime,
+            @RequestParam("endTime") LocalTime endTime,
             @RequestParam("isUpdate") boolean isUpdate,
             @RequestParam("file") MultipartFile file) {
     try{
@@ -87,6 +90,8 @@ public class MinistryController {
         entity.setMinistryName(ministryName);
         entity.setDescription(description);
         entity.setMember(member);
+        entity.setStartTime(startTime);
+        entity.setEndTime(endTime);
         return new ResponseEntity<>(serviceImp.saveMinistry(entity,  isUpdate, statusName, file), HttpStatus.OK);
     } catch(RuntimeException e)
     {

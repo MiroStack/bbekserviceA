@@ -26,7 +26,7 @@ public class OfferingController {
         }
     }
     @PostMapping("submitOffering")
-    ResponseEntity<ApiResponseModel> submitOffering(@RequestBody OfferingModel model, boolean isUpdated, Long id){
+    ResponseEntity<ApiResponseModel> submitOffering(@RequestBody OfferingModel model, @RequestParam("isUpdate") boolean isUpdated){
         try{
 
                 return new ResponseEntity<>(serviceImp.submitOffering(model, isUpdated), HttpStatus.OK);
@@ -51,6 +51,23 @@ public class OfferingController {
     ResponseEntity<ApiResponseModel> getOfferingRf(){
         try{
             return new ResponseEntity<>(serviceImp.getAllOfferingTypeRf(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("deleteOffering")
+    ResponseEntity<ApiResponseModel> deleteOffering(Long id){
+        try{
+            ApiResponseModel res = serviceImp.deleteOffering(id);
+            if(res.getStatusCode() == 200){
+                return new ResponseEntity<>(res, HttpStatus.OK);
+
+            }else if(res.getStatusCode() == 404){
+                return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
+            }else{
+                return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+            }
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

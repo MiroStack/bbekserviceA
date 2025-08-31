@@ -35,7 +35,7 @@ public class MinistryServiceImp implements MinistryService {
     @Override
     public List<MinistryModel> getAllMinistryList() {
         List<MinistryEntity> ministryEntities = mRepo.findAll();
-        return ministryEntities.stream().map(m->{
+        return ministryEntities.stream().map(m -> {
             Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(m.getStatusId());
             MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
             return new MinistryModel(
@@ -47,7 +47,9 @@ public class MinistryServiceImp implements MinistryService {
                     m.getDescription(),
                     m.getMember(),
                     m.getCreatedDate(),
-                    m.getUpdatedDate()
+                    m.getUpdatedDate(),
+                    m.getStartTime(),
+                    m.getEndTime()
             );
         }).collect(Collectors.toList());
     }
@@ -55,31 +57,31 @@ public class MinistryServiceImp implements MinistryService {
     @Override
     public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, String statusName, MultipartFile file) {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             MinistryStatusRfEntity statusRfEntity = msRepo.findByStatusName(statusName);
 
             String ministryPath = Config.getMinistryImagePath();
             String fileUploadPathImage = ministryPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
             File ROOT_BASE_PATH = new File(fileUploadPathImage);
-            if(!ROOT_BASE_PATH.exists()){
+            if (!ROOT_BASE_PATH.exists()) {
                 ROOT_BASE_PATH.mkdirs();
             }
             String[] ext = file.getOriginalFilename().split("\\.");
-            String filePath = fileUploadPathImage+"\\"+new Dates().getCurrentDateTime1()+"-"+new SaveFile().generateRandomString()+"."+ext[ext.length-1];
+            String filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
             MinistryEntity entity1 = entity;
             entity1.setFilepath(filePath);
             entity1.setStatusId(statusRfEntity.getId());
-            if(isUpdate){
+            if (isUpdate) {
                 entity1.setUpdatedDate(LocalDateTime.now());
-            }else{
+            } else {
                 entity1.setCreatedDate(LocalDateTime.now());
             }
             mRepo.save(entity);
 
             new SaveFile().saveFile(file, filePath);
 
-            res.setMessage(isUpdate?"Ministry is updated successfully":"Ministry is created successfully");
-            res.setStatusCode(isUpdate?200:201);
+            res.setMessage(isUpdate ? "Ministry is updated successfully" : "Ministry is created successfully");
+            res.setStatusCode(isUpdate ? 200 : 201);
             return res;
 
         } catch (Exception e) {
@@ -102,31 +104,33 @@ public class MinistryServiceImp implements MinistryService {
     @Override
     public ApiResponseModel getMinistry(Long id) {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             Optional<MinistryEntity> ministryEntityOptional = mRepo.findById(id);
             MinistryEntity ministryEntity = ministryEntityOptional.orElse(null);
-            if(ministryEntity == null){
+            if (ministryEntity == null) {
                 res.setStatusCode(404);
                 res.setMessage("Ministry not found");
                 return res;
             }
             Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(ministryEntity.getStatusId());
             MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
-            if((ministryStatusRfEntity == null)){
+            if ((ministryStatusRfEntity == null)) {
                 res.setStatusCode(404);
                 res.setMessage("Status not found");
                 return res;
             }
             MinistryModel model = new MinistryModel(
-                ministryEntity.getId(),
-                ministryEntity.getSchedule(),
-                ministryEntity.getLeader(),
-                ministryStatusRfEntity.getStatusName(),
-                ministryEntity.getMinistryName(),
-                ministryEntity.getDescription(),
-                ministryEntity.getMember(),
-                ministryEntity.getCreatedDate(),
-                ministryEntity.getUpdatedDate()
+                    ministryEntity.getId(),
+                    ministryEntity.getSchedule(),
+                    ministryEntity.getLeader(),
+                    ministryStatusRfEntity.getStatusName(),
+                    ministryEntity.getMinistryName(),
+                    ministryEntity.getDescription(),
+                    ministryEntity.getMember(),
+                    ministryEntity.getCreatedDate(),
+                    ministryEntity.getUpdatedDate(),
+                    ministryEntity.getStartTime(),
+                    ministryEntity.getEndTime()
             );
             res.setData(model);
             res.setMessage(SUCCESS);
@@ -142,10 +146,10 @@ public class MinistryServiceImp implements MinistryService {
     @Override
     public ApiResponseModel deleteMinistry(Long id) {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             Optional<MinistryEntity> ministryEntityOptional = mRepo.findById(id);
             MinistryEntity ministryEntity = ministryEntityOptional.orElse(null);
-            if(ministryEntity == null){
+            if (ministryEntity == null) {
                 res.setStatusCode(404);
                 res.setMessage("Ministry not found");
                 return res;
@@ -164,27 +168,29 @@ public class MinistryServiceImp implements MinistryService {
     @Override
     public ApiResponseModel getUpcomingMinistry() {
         ApiResponseModel res = new ApiResponseModel();
-        try{
-           List<MinistryEntity> entities = mRepo.findUpcomingMinistry();
-           List<MinistryModel> ministryModelList = entities.stream().map(m->{
-               Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(m.getStatusId());
-               MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
-               return new MinistryModel(
-                       m.getId(),
-                       m.getSchedule(),
-                       m.getLeader(),
-                       ministryStatusRfEntity.getStatusName(),
-                       m.getMinistryName(),
-                       m.getDescription(),
-                       m.getMember(),
-                       m.getCreatedDate(),
-                       m.getUpdatedDate()
-               );
-           }).toList();
-           res.setMessage(SUCCESS);
-           res.setStatusCode(200);
-           res.setData(ministryModelList);
-           return res;
+        try {
+            List<MinistryEntity> entities = mRepo.findUpcomingMinistry();
+            List<MinistryModel> ministryModelList = entities.stream().map(m -> {
+                Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(m.getStatusId());
+                MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
+                return new MinistryModel(
+                        m.getId(),
+                        m.getSchedule(),
+                        m.getLeader(),
+                        ministryStatusRfEntity.getStatusName(),
+                        m.getMinistryName(),
+                        m.getDescription(),
+                        m.getMember(),
+                        m.getCreatedDate(),
+                        m.getUpdatedDate(),
+                        m.getStartTime(),
+                        m.getEndTime()
+                );
+            }).toList();
+            res.setMessage(SUCCESS);
+            res.setStatusCode(200);
+            res.setData(ministryModelList);
+            return res;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

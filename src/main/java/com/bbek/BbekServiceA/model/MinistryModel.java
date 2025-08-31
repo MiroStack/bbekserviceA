@@ -1,5 +1,6 @@
 package com.bbek.BbekServiceA.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 public class MinistryModel {
@@ -28,7 +30,13 @@ public class MinistryModel {
 
     private LocalDateTime updatedDate;
 
-    public MinistryModel(long id, String schedule, String leader, String statusName, String ministryName, String description, int member, LocalDateTime createdDate, LocalDateTime updatedDate) {
+
+    private LocalTime startTime;
+
+
+    private LocalTime endTime;
+
+    public MinistryModel(long id, String schedule, String leader, String statusName, String ministryName, String description, int member, LocalDateTime createdDate, LocalDateTime updatedDate, LocalTime startTime, LocalTime endTime) {
         this.id = id;
         this.schedule = schedule;
         this.leader = leader;
@@ -38,5 +46,7 @@ public class MinistryModel {
         this.member = member;
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static com.bbek.BbekServiceA.util.Constant.NOT_FOUND;
 import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
 
 @Service
@@ -98,7 +99,23 @@ public class OfferingServiceImp implements OfferingService {
 
     @Override
     public ApiResponseModel deleteOffering(Long id) {
-        return null;
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            Optional<OfferingEntity> oOptional = oRepo.findById(id);
+            OfferingEntity entity = oOptional.orElse(null);
+            if(entity == null){
+                res.setStatusCode(404);
+                res.setMessage(NOT_FOUND);
+                return res;
+            }
+            oRepo.delete(entity);
+            res.setStatusCode(200);
+            res.setMessage("Offering record is successfully deleted.");
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override

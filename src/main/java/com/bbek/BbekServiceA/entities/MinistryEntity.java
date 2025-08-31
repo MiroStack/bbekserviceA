@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -40,7 +41,18 @@ public class MinistryEntity {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime createdDate;
 
+
     @Column(name = "updated_dt")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime updatedDate;
+
+    @Column(name="start_time")
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime startTime;
+
+    @Column(name="end_time")
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime endTime;
+
+
 }
