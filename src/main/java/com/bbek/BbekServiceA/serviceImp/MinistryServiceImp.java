@@ -1,5 +1,6 @@
 package com.bbek.BbekServiceA.serviceImp;
 
+import com.bbek.BbekServiceA.entities.EventEntity;
 import com.bbek.BbekServiceA.entities.MinistryEntity;
 import com.bbek.BbekServiceA.entities.MinistryStatusRfEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
@@ -69,6 +70,11 @@ public class MinistryServiceImp implements MinistryService {
             String[] ext = file.getOriginalFilename().split("\\.");
             String filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
             MinistryEntity entity1 = entity;
+            if (isUpdate) {
+                Optional<MinistryEntity> entityOptional = mRepo.findById(entity.getId());
+                entity1 = entityOptional.orElse(null);
+                new SaveFile().deleteFile(entity1.getFilepath());
+            }
             entity1.setFilepath(filePath);
             entity1.setStatusId(statusRfEntity.getId());
             if (isUpdate) {
@@ -154,6 +160,7 @@ public class MinistryServiceImp implements MinistryService {
                 res.setMessage("Ministry not found");
                 return res;
             }
+            new SaveFile().deleteFile(ministryEntity.getFilepath());
             mRepo.delete(ministryEntity);
             res.setMessage("Ministry deleted successfully");
             res.setStatusCode(200);

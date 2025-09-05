@@ -1,9 +1,11 @@
 package com.bbek.BbekServiceA.util;
 
 
+import com.bbek.BbekServiceA.entities.EventEntity;
 import com.bbek.BbekServiceA.service.MinistryService;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,5 +36,16 @@ public class SaveFile {
             sb.append(CHARACTERS.charAt(randomIndex));
         }
         return sb.toString();
+    }
+
+    public boolean deleteFile(String path){
+        String oldPath = path;
+        System.out.println("Path: "+oldPath);
+        File myobj = new File(oldPath);
+        if(myobj.exists()){
+            myobj.delete();
+            return true;
+        }
+        return false;
     }
 }
