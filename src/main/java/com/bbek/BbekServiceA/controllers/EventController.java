@@ -44,7 +44,7 @@ public class EventController {
             @RequestParam("description") String description,
             @RequestParam("statusName") String statusName,
             @RequestParam("isUpdate") boolean isUpdate,
-             @RequestParam("file") MultipartFile file
+             @RequestParam(value = "file", required = false) MultipartFile file
             ) {
         try{
             EventEntity entity = new EventEntity();

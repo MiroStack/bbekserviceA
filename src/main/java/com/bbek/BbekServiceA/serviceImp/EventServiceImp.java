@@ -74,24 +74,33 @@ public class EventServiceImp implements EventService {
             }
             String eventPath = Config.getEventImagePath();
             String fileUploadPathImage = eventPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
-            File ROOT_BASE_PATH = new File(fileUploadPathImage);
-            if (!ROOT_BASE_PATH.exists()) {
-                ROOT_BASE_PATH.mkdirs();
-            }
-            String[] ext = file.getOriginalFilename().split("\\.");
-            String filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
             EventEntity entity1 = entity;
-
+            String filePath = "";
             if (isUpdate) {
                 Optional<EventEntity> entityOptional = eRepo.findById(entity.getId());
-                 entity1 = entityOptional.orElse(null);
-                new SaveFile().deleteFile(entity.getFilePath());
+                EventEntity oldEntity = entity1 = entityOptional.orElse(null);
+                entity1.setFilePath(oldEntity.getFilePath());
+                entity1.setUpdateDate(LocalDateTime.now());
+            }else{
+                entity1.setCreatedDate(LocalDateTime.now());
             }
-            entity1.setFilePath(filePath);
+            if(file != null){
+                File ROOT_BASE_PATH = new File(fileUploadPathImage);
+                if (!ROOT_BASE_PATH.exists()) {
+                    ROOT_BASE_PATH.mkdirs();
+                }
+                String[] ext = file.getOriginalFilename().split("\\.");
+                filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
+                if(isUpdate){
+                    new SaveFile().deleteFile(entity1.getFilePath());
+                }
+                entity1.setFilePath(filePath);
+                new SaveFile().saveFile(file, filePath);
+            }
             entity1.setStatusId(eventStatusRfEntity.getId());
             eRepo.save(entity1);
 
-            new SaveFile().saveFile(file, filePath);
+
 
             res.setMessage(isUpdate ? "Event successfully updated." : "Event successfully created.");
             res.setStatusCode(isUpdate ? 200 : 201);

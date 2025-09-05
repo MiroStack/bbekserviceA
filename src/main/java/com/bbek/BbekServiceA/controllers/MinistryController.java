@@ -79,7 +79,7 @@ public class MinistryController {
             @RequestParam("startTime") LocalTime startTime,
             @RequestParam("endTime") LocalTime endTime,
             @RequestParam("isUpdate") boolean isUpdate,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam(value = "file", required = false) MultipartFile file) {
     try{
         MinistryEntity entity = new MinistryEntity();
         if(isUpdate){

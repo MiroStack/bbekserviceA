@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.cglib.core.Local;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -37,9 +38,11 @@ public class EventEntity {
     @Column(name="filepath")
     private String filePath;
     @Column(name = "created_dt")
-    private String createdDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime createdDate;
     @Column(name="update_dt")
-    private String updateDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime updateDate;
     @Column(name="event_end_date")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime eventEndDate;

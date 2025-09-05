@@ -11,6 +11,7 @@ import com.bbek.BbekServiceA.service.MinistryService;
 import com.bbek.BbekServiceA.util.Config;
 import com.bbek.BbekServiceA.util.Dates;
 import com.bbek.BbekServiceA.util.SaveFile;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,6 +56,7 @@ public class MinistryServiceImp implements MinistryService {
         }).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, String statusName, MultipartFile file) {
         ApiResponseModel res = new ApiResponseModel();
@@ -63,28 +65,32 @@ public class MinistryServiceImp implements MinistryService {
 
             String ministryPath = Config.getMinistryImagePath();
             String fileUploadPathImage = ministryPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
-            File ROOT_BASE_PATH = new File(fileUploadPathImage);
-            if (!ROOT_BASE_PATH.exists()) {
-                ROOT_BASE_PATH.mkdirs();
-            }
-            String[] ext = file.getOriginalFilename().split("\\.");
-            String filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
             MinistryEntity entity1 = entity;
+            String filePath = "";
             if (isUpdate) {
                 Optional<MinistryEntity> entityOptional = mRepo.findById(entity.getId());
-                entity1 = entityOptional.orElse(null);
-                new SaveFile().deleteFile(entity1.getFilepath());
-            }
-            entity1.setFilepath(filePath);
-            entity1.setStatusId(statusRfEntity.getId());
-            if (isUpdate) {
+                MinistryEntity oldEntity = entityOptional.orElse(null);
+                entity1.setFilepath(oldEntity.getFilepath());
                 entity1.setUpdatedDate(LocalDateTime.now());
-            } else {
+            }else{
                 entity1.setCreatedDate(LocalDateTime.now());
             }
-            mRepo.save(entity);
+            entity1.setStatusId(statusRfEntity.getId());
 
-            new SaveFile().saveFile(file, filePath);
+            if(file != null){
+                File ROOT_BASE_PATH = new File(fileUploadPathImage);
+                if (!ROOT_BASE_PATH.exists()) {
+                    ROOT_BASE_PATH.mkdirs();
+                }
+                String[] ext = file.getOriginalFilename().split("\\.");
+                filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
+                if (isUpdate) {
+                    new SaveFile().deleteFile(entity1.getFilepath());
+                }
+                entity1.setFilepath(filePath);
+                new SaveFile().saveFile(file, filePath);
+            }
+            mRepo.save(entity1);
 
             res.setMessage(isUpdate ? "Ministry is updated successfully" : "Ministry is created successfully");
             res.setStatusCode(isUpdate ? 200 : 201);
