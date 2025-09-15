@@ -11,6 +11,7 @@ import com.bbek.BbekServiceA.service.MarriageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,6 +60,8 @@ public class MarriageServiceImp implements MarriageService {
               res.setMessage("Marriage is successfully updated.");
               return res;
           }else{
+              entity.setCreatedDate(LocalDateTime.now());
+              entity.setId(null);
               mRepo.save(entity);
               res.setStatusCode(201);
               res.setMessage("Marriage is successfully saved.");
