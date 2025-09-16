@@ -125,6 +125,15 @@ public class MinistryController {
         }
     }
 
+    @GetMapping("getPaginatedMinistry")
+    public ResponseEntity<ApiResponseModel> getPaginatedMinistry(@RequestParam(value = "query", required = false)String query, @RequestParam(value = "index", required = false)int index){
+        try{
+            return new ResponseEntity<>(serviceImp.getPaginatedEvents(query, index), HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
 
     public String sanitize(String input) {

@@ -14,4 +14,5 @@ public interface MinistryService {
     ApiResponseModel getMinistry(Long id);
     ApiResponseModel deleteMinistry(Long id);
     ApiResponseModel getUpcomingMinistry();
+    ApiResponseModel getPaginatedEvents(String query, int index);
 }

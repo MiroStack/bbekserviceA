@@ -1,6 +1,7 @@
 package com.bbek.BbekServiceA.repository;
 
 import com.bbek.BbekServiceA.entities.MinistryEntity;
+import com.bbek.BbekServiceA.entities.modified.minsitry.ModifiedMinistryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,4 +14,12 @@ public interface MinistryRepo extends JpaRepository<MinistryEntity, Long> {
 
     @Query(value = "SELECT * FROM ministry ORDER BY created_dt LIMIT 4", nativeQuery = true )
     List<MinistryEntity> findUpcomingMinistry();
+
+    @Query(value = "SELECT *, COUNT(*) OVER() as total_rows FROM " +
+            "bbek.ministry " +
+            "WHERE ministry_name LIKE :query " +
+            "AND id > :index " +
+            "ORDER BY id "+
+            "LIMIT 20", nativeQuery = true)
+    List<ModifiedMinistryEntity> getPaginatedMinistry(@Param("query")String query, @Param("index")int index);
 }

@@ -3,6 +3,7 @@ package com.bbek.BbekServiceA.serviceImp;
 import com.bbek.BbekServiceA.entities.EventEntity;
 import com.bbek.BbekServiceA.entities.MinistryEntity;
 import com.bbek.BbekServiceA.entities.MinistryStatusRfEntity;
+import com.bbek.BbekServiceA.entities.modified.minsitry.ModifiedMinistryEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.MinistryModel;
 import com.bbek.BbekServiceA.repository.MinistryRepo;
@@ -208,5 +209,20 @@ public class MinistryServiceImp implements MinistryService {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public ApiResponseModel getPaginatedEvents(String query, int index) {
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            String formatedQuery = "%"+query+"%";
+            List<ModifiedMinistryEntity> list = mRepo.getPaginatedMinistry(formatedQuery, index);
+            res.setData(list);
+            res.setStatusCode(200);
+            res.setMessage(SUCCESS);
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
