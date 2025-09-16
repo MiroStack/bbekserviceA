@@ -2,10 +2,9 @@ package com.bbek.BbekServiceA.serviceImp;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
 import com.bbek.BbekServiceA.entities.EventStatusRfEntity;
-import com.bbek.BbekServiceA.entities.MinistryEntity;
+import com.bbek.BbekServiceA.entities.modified.event.ModifiedEventEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
-import com.bbek.BbekServiceA.model.EventModel;
-import com.bbek.BbekServiceA.model.MinistryModel;
+import com.bbek.BbekServiceA.model.event.EventModel;
 import com.bbek.BbekServiceA.repository.EventRepo;
 import com.bbek.BbekServiceA.repository.EventStatusRepo;
 import com.bbek.BbekServiceA.service.EventService;
@@ -238,6 +237,21 @@ public class EventServiceImp implements EventService {
 
             res.setData(eventModel);
             res.setMessage(SUCCESS);
+            res.setStatusCode(200);
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ApiResponseModel getPaginatedEvents(String query, int index) {
+       ApiResponseModel res = new ApiResponseModel();
+        try{
+            String queryFormatted = "%"+query+"%";
+            List<ModifiedEventEntity> list = eRepo.paginatedEvents(queryFormatted, index);
+            res.setMessage(SUCCESS);
+            res.setData(list);
             res.setStatusCode(200);
             return res;
         } catch (Exception e) {

@@ -1,10 +1,9 @@
-package com.bbek.BbekServiceA.model;
+package com.bbek.BbekServiceA.model.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data

@@ -2,8 +2,7 @@ package com.bbek.BbekServiceA.service;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
-import com.bbek.BbekServiceA.model.EventModel;
-import com.bbek.BbekServiceA.model.MinistryModel;
+import com.bbek.BbekServiceA.model.event.EventModel;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -34,4 +33,5 @@ public interface EventService {
     public String getEventImage(String eventName);
 
     ApiResponseModel getUpcomingEvent();
+    ApiResponseModel getPaginatedEvents(String query, int index);
 }

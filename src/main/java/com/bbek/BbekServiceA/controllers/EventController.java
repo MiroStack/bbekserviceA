@@ -1,12 +1,10 @@
 package com.bbek.BbekServiceA.controllers;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
-import com.bbek.BbekServiceA.entities.MinistryEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
-import com.bbek.BbekServiceA.model.EventModel;
-import com.bbek.BbekServiceA.model.MinistryModel;
-import com.bbek.BbekServiceA.service.EventService;
+import com.bbek.BbekServiceA.model.event.EventModel;
 import com.bbek.BbekServiceA.serviceImp.EventServiceImp;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -125,6 +122,17 @@ public class EventController {
             return new ResponseEntity<>(eService.getUpcomingEvent(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("getPaginatedEvents")
+    public ResponseEntity<ApiResponseModel> getPaginatedEvents(@RequestParam(value="query", required = false)String query, @RequestParam(value = "index", required = false)int index){
+        try{
+            return new ResponseEntity<>(eService.getPaginatedEvents(query, index), HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .build();
         }
     }
 

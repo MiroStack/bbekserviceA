@@ -1,6 +1,7 @@
 package com.bbek.BbekServiceA.repository;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
+import com.bbek.BbekServiceA.entities.modified.event.ModifiedEventEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,4 +14,13 @@ public interface EventRepo extends JpaRepository<EventEntity, Long> {
 
     @Query(value = "SELECT * FROM event WHERE event_start_date > now() ORDER BY event_start_date limit 4", nativeQuery = true)
     List<EventEntity> findUpcomingEvent();
+
+    @Query(value = "SELECT *, COUNT(*) OVER() AS total_rows " +
+            "FROM bbek.event " +
+            "WHERE event_name LIKE :query " +
+            "AND id > :index " +
+            "ORDER BY id " +
+            "LIMIT 20", nativeQuery = true)
+    List<ModifiedEventEntity> paginatedEvents(@Param("query") String query, @Param("index") int index);
+
 }
