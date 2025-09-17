@@ -32,6 +32,8 @@ public class EventServiceImp implements EventService {
     @Autowired
     EventStatusRepo esRepo;
 
+    private final ApiResponseModel res = new ApiResponseModel();
+
     @Override
     public List<EventModel> getAllevent() {
         List<EventEntity> eventEntities = eRepo.findAll();
@@ -62,7 +64,7 @@ public class EventServiceImp implements EventService {
                                       MultipartFile file,
                                       boolean isUpdate,
                                       String statusName) {
-        ApiResponseModel res = new ApiResponseModel();
+
         try {
             EventStatusRfEntity eventStatusRfEntity = esRepo.findByStatusName(statusName);
             //  System.out.println("Status name:" +statusName +", Status id:"+eventStatusRfEntity.getId());
@@ -117,7 +119,7 @@ public class EventServiceImp implements EventService {
 
     @Override
     public ApiResponseModel getEvent(Long id) {
-        ApiResponseModel res = new ApiResponseModel();
+
         try {
             Optional<EventEntity> eEntityOPtional = eRepo.findById(id);
             EventEntity eventEntity = eEntityOPtional.orElse(null);
@@ -158,7 +160,7 @@ public class EventServiceImp implements EventService {
 
     @Override
     public ApiResponseModel updateEvent(EventEntity entity, MultipartFile file) {
-        ApiResponseModel res = new ApiResponseModel();
+
         try {
             String eventPath = Config.getEventImagePath();
             String fileUploadPathImage = eventPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
@@ -188,7 +190,7 @@ public class EventServiceImp implements EventService {
 
     @Override
     public ApiResponseModel deleteEvent(Long id) {
-        ApiResponseModel res = new ApiResponseModel();
+
         try {
             Optional<EventEntity> eventEntityOptional = eRepo.findById(id);
             EventEntity eventEntity = eventEntityOptional.orElse(null);
@@ -215,7 +217,7 @@ public class EventServiceImp implements EventService {
 
     @Override
     public ApiResponseModel getUpcomingEvent() {
-        ApiResponseModel res = new ApiResponseModel();
+
         try {
             List<EventEntity> entity = eRepo.findUpcomingEvent();
             List<EventModel> eventModel = entity.stream().map(m -> {
@@ -258,4 +260,20 @@ public class EventServiceImp implements EventService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public ApiResponseModel getAllEventStatuses() {
+        try{
+            List<EventStatusRfEntity> list = esRepo.findAll();
+            res.setData(list);
+            res.setMessage(SUCCESS);
+            res.setStatusCode(200);
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
 }

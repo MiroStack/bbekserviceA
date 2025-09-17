@@ -34,4 +34,6 @@ public interface EventService {
 
     ApiResponseModel getUpcomingEvent();
     ApiResponseModel getPaginatedEvents(String query, int index);
+    ApiResponseModel getAllEventStatuses();
+
 }

@@ -136,4 +136,15 @@ public class EventController {
         }
     }
 
+    @GetMapping("getAllEventStatuses")
+    public ResponseEntity<ApiResponseModel> getAllEventStatuses(){
+        try{
+            return new ResponseEntity<>(eService.getAllEventStatuses(), HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .build();
+        }
+    }
+
 }
