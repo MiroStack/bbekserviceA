@@ -18,8 +18,8 @@ public interface MinistryRepo extends JpaRepository<MinistryEntity, Long> {
     @Query(value = "SELECT *, COUNT(*) OVER() as total_rows FROM " +
             "bbek.ministry " +
             "WHERE ministry_name LIKE :query " +
-            "AND id > :index " +
             "ORDER BY id "+
-            "LIMIT 20", nativeQuery = true)
-    List<ModifiedMinistryEntity> getPaginatedMinistry(@Param("query")String query, @Param("index")int index);
+            "LIMIT 20 "+
+            "OFFSET :noOfROwsToSkip", nativeQuery = true)
+    List<ModifiedMinistryEntity> getPaginatedMinistry(@Param("query")String query, @Param("noOfROwsToSkip")int noOfROwsToSkip);
 }

@@ -212,11 +212,12 @@ public class MinistryServiceImp implements MinistryService {
     }
 
     @Override
-    public ApiResponseModel getPaginatedEvents(String query, int index) {
+    public ApiResponseModel getPaginatedMinistry(String query, int page) {
         ApiResponseModel res = new ApiResponseModel();
         try{
             String formatedQuery = "%"+query+"%";
-            List<ModifiedMinistryEntity> list = mRepo.getPaginatedMinistry(formatedQuery, index);
+            int noOfSkipOfRows = page == 1?0:(page-1)*20;
+            List<ModifiedMinistryEntity> list = mRepo.getPaginatedMinistry(formatedQuery, noOfSkipOfRows);
             res.setData(list);
             res.setStatusCode(200);
             res.setMessage(SUCCESS);

@@ -126,9 +126,9 @@ public class EventController {
     }
 
     @GetMapping("getPaginatedEvents")
-    public ResponseEntity<ApiResponseModel> getPaginatedEvents(@RequestParam(value="query", required = false)String query, @RequestParam(value = "index", required = false)int index){
+    public ResponseEntity<ApiResponseModel> getPaginatedEvents(@RequestParam(value="query", required = false)String query, @RequestParam(value = "page", required = false)int page){
         try{
-            return new ResponseEntity<>(eService.getPaginatedEvents(query, index), HttpStatus.OK);
+            return new ResponseEntity<>(eService.getPaginatedEvents(query, page), HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity
                     .badRequest()
