@@ -247,11 +247,13 @@ public class EventServiceImp implements EventService {
     }
 
     @Override
-    public ApiResponseModel getPaginatedEvents(String query, int index) {
+    public ApiResponseModel getPaginatedEvents(String query, int page) {
        ApiResponseModel res = new ApiResponseModel();
         try{
+            System.out.println("Page: "+ page);
             String queryFormatted = "%"+query+"%";
-            List<ModifiedEventEntity> list = eRepo.paginatedEvents(queryFormatted, index);
+            int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+            List<ModifiedEventEntity> list = eRepo.paginatedEvents(queryFormatted, numberOfRowsToSkip);
             res.setMessage(SUCCESS);
             res.setData(list);
             res.setStatusCode(200);
