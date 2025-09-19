@@ -33,7 +33,7 @@ public interface EventService {
     public String getEventImage(String eventName);
 
     ApiResponseModel getUpcomingEvent();
-    ApiResponseModel getPaginatedEvents(String query, int page);
+    ApiResponseModel getPaginatedEvents(String query, int numberOfRowsToSkip);
     ApiResponseModel getAllEventStatuses();
 
 }

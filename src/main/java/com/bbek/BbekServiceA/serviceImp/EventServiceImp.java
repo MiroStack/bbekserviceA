@@ -250,9 +250,10 @@ public class EventServiceImp implements EventService {
     public ApiResponseModel getPaginatedEvents(String query, int page) {
        ApiResponseModel res = new ApiResponseModel();
         try{
+            System.out.println("Page: "+ page);
             String queryFormatted = "%"+query+"%";
-            int noOfRowsToSkip = page == 1? 0 : (page-1) * 20;
-            List<ModifiedEventEntity> list = eRepo.paginatedEvents(queryFormatted, noOfRowsToSkip);
+            int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+            List<ModifiedEventEntity> list = eRepo.paginatedEvents(queryFormatted, numberOfRowsToSkip);
             res.setMessage(SUCCESS);
             res.setData(list);
             res.setStatusCode(200);
