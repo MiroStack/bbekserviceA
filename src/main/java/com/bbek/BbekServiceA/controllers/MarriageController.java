@@ -36,9 +36,9 @@ public class MarriageController {
     }
 
     @GetMapping("getAllMarriageRecord")
-    public ResponseEntity<ApiResponseModel> getAllMarriageRecord(){
+    public ResponseEntity<ApiResponseModel> getAllMarriageRecord(@RequestParam("query")String query, @RequestParam("page") int page){
         try{
-            return new ResponseEntity<>(serviceImp.getAllMarriages(), HttpStatus.OK);
+            return new ResponseEntity<>(serviceImp.getAllMarriages(query, page), HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

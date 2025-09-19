@@ -18,9 +18,14 @@ public interface EventRepo extends JpaRepository<EventEntity, Long> {
     @Query(value = "SELECT *, COUNT(*) OVER() AS total_rows " +
             "FROM bbek.event " +
             "WHERE event_name LIKE :query " +
-            "ORDER BY id " +
+            "OR event_type LIKE :query " +
+            "OR event_location LIKE :query " +
+            "OR attendance LIKE :query " +
+            "OR offering LIKE :query " +
+            "OR description LIKE :query " +
+            "ORDER BY id DESC " +
             "LIMIT 10 "+
-            "OFFSET :numberOfRowsToSkip", nativeQuery = true)
+            "OFFSET :numberOfRowsToSkip ", nativeQuery = true)
     List<ModifiedEventEntity> paginatedEvents(@Param("query") String query, @Param("numberOfRowsToSkip") int numberOfRowsToSkip);
 
 }

@@ -3,6 +3,7 @@ package com.bbek.BbekServiceA.serviceImp;
 import com.bbek.BbekServiceA.entities.MarriageEntity;
 import com.bbek.BbekServiceA.entities.MarriageLocationRfEntity;
 import com.bbek.BbekServiceA.entities.MarriageStatusRfEntity;
+import com.bbek.BbekServiceA.entities.modified.marriage.ModifiedMarriageEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.repository.MarriageLocationRepo;
 import com.bbek.BbekServiceA.repository.MarriageRepo;
@@ -29,10 +30,12 @@ public class MarriageServiceImp implements MarriageService {
     @Autowired
     MarriageLocationRepo mlRepo;
     @Override
-    public ApiResponseModel getAllMarriages() {
+    public ApiResponseModel getAllMarriages(String query, int page) {
         ApiResponseModel res = new ApiResponseModel();
         try{
-            List<MarriageEntity> list = mRepo.findAll();
+            String formattedQuery = "%"+query+"%";
+            int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+            List<ModifiedMarriageEntity> list = mRepo.getPaginatedMarriage(formattedQuery, numberOfRowsToSkip);
             res.setData(list);
             res.setStatusCode(200);
             res.setMessage(SUCCESS);

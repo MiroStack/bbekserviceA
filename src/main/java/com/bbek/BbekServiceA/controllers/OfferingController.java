@@ -18,9 +18,9 @@ public class OfferingController {
     @Autowired
     OfferingServiceImp serviceImp;
     @GetMapping("getAllOffering")
-    ResponseEntity<ApiResponseModel> getAllOffering(){
+    ResponseEntity<ApiResponseModel> getAllOffering(@RequestParam("query")String query, @RequestParam("page") int page){
         try{
-            return new ResponseEntity<>(serviceImp.getAllOffering(), HttpStatus.OK);
+            return new ResponseEntity<>(serviceImp.getAllOffering(query, page), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

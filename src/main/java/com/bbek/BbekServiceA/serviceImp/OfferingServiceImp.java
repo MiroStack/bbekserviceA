@@ -3,6 +3,7 @@ package com.bbek.BbekServiceA.serviceImp;
 import com.bbek.BbekServiceA.entities.OfferingEntity;
 import com.bbek.BbekServiceA.entities.OfferingPaymentRfEntity;
 import com.bbek.BbekServiceA.entities.OfferingTypeRfEntity;
+import com.bbek.BbekServiceA.entities.modified.offering.ModifiedOfferingEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.OfferingModel;
 import com.bbek.BbekServiceA.repository.OfferingPaymentRepo;
@@ -28,30 +29,15 @@ public class OfferingServiceImp implements OfferingService {
     @Autowired
     OfferingPaymentRepo opRepo;
     @Override
-    public ApiResponseModel getAllOffering() {
+    public ApiResponseModel getAllOffering(String query, int page) {
         ApiResponseModel res = new ApiResponseModel();
         try{
-            List<OfferingEntity> listOfOfferings = oRepo.findAll();
-            List<OfferingModel>listModel = listOfOfferings.stream().map(m->{
-                Optional<OfferingTypeRfEntity> otOptional = otRepo.findById(m.getOfferingType());
-                OfferingTypeRfEntity offeringTypeRfEntity = otOptional.orElse(null);
-                Optional<OfferingPaymentRfEntity> opOptional = opRepo.findById(m.getPaymentMethod());
-                OfferingPaymentRfEntity offeringPaymentRfEntity = opOptional.orElse(null);
-                assert offeringTypeRfEntity != null;
-                assert offeringPaymentRfEntity != null;
-                return new OfferingModel(
-                        m.getId(),
-                        m.getMemberName(),
-                        m.getAmount(),
-                        m.getOfferingDate(),
-                        offeringTypeRfEntity.getOfferingType(),
-                        offeringPaymentRfEntity.getPaymentMethod(),
-                        m.getNotes()
-                );
-            }).toList();
+            String formattedQuery = "%"+query+"%";
+            int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+            List<ModifiedOfferingEntity> listOfOfferings = oRepo.getPaginatedOffering(formattedQuery, numberOfRowsToSkip);
             res.setMessage(SUCCESS);
             res.setStatusCode(200);
-            res.setData(listModel);
+            res.setData(listOfOfferings);
             return res;
         } catch (Exception e) {
             throw new RuntimeException(e);
