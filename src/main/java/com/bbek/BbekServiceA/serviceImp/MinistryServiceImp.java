@@ -35,6 +35,8 @@ public class MinistryServiceImp implements MinistryService {
     @Autowired
     MinistryStatusRepo msRepo;
 
+    private final ApiResponseModel res = new ApiResponseModel();
+
     @Override
     public List<MinistryModel> getAllMinistryList() {
         List<MinistryEntity> ministryEntities = mRepo.findAll();
@@ -60,7 +62,6 @@ public class MinistryServiceImp implements MinistryService {
     @Transactional
     @Override
     public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, String statusName, MultipartFile file) {
-        ApiResponseModel res = new ApiResponseModel();
         try {
             MinistryStatusRfEntity statusRfEntity = msRepo.findByStatusName(statusName);
 
@@ -116,7 +117,6 @@ public class MinistryServiceImp implements MinistryService {
 
     @Override
     public ApiResponseModel getMinistry(Long id) {
-        ApiResponseModel res = new ApiResponseModel();
         try {
             Optional<MinistryEntity> ministryEntityOptional = mRepo.findById(id);
             MinistryEntity ministryEntity = ministryEntityOptional.orElse(null);
@@ -158,7 +158,6 @@ public class MinistryServiceImp implements MinistryService {
 
     @Override
     public ApiResponseModel deleteMinistry(Long id) {
-        ApiResponseModel res = new ApiResponseModel();
         try {
             Optional<MinistryEntity> ministryEntityOptional = mRepo.findById(id);
             MinistryEntity ministryEntity = ministryEntityOptional.orElse(null);
@@ -181,7 +180,6 @@ public class MinistryServiceImp implements MinistryService {
 
     @Override
     public ApiResponseModel getUpcomingMinistry() {
-        ApiResponseModel res = new ApiResponseModel();
         try {
             List<MinistryEntity> entities = mRepo.findUpcomingMinistry();
             List<MinistryModel> ministryModelList = entities.stream().map(m -> {
@@ -213,15 +211,28 @@ public class MinistryServiceImp implements MinistryService {
 
     @Override
     public ApiResponseModel getPaginatedMinistry(String query, int page) {
-        ApiResponseModel res = new ApiResponseModel();
         try{
-            String formatedQuery = "%"+query+"%";
-            int noOfSkipOfRows = page == 1?0:(page-1)*20;
-            List<ModifiedMinistryEntity> list = mRepo.getPaginatedMinistry(formatedQuery, noOfSkipOfRows);
+            String formattedQuery = "%"+query+"%";
+            int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+            List<ModifiedMinistryEntity> list = mRepo.getPaginatedMinistry(formattedQuery, numberOfRowsToSkip);
             res.setData(list);
             res.setStatusCode(200);
             res.setMessage(SUCCESS);
             return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ApiResponseModel getMinistryStatuses() {
+        try{
+            List<MinistryStatusRfEntity> list = msRepo.findAll();
+            res.setData(list);
+            res.setMessage(SUCCESS);
+            res.setStatusCode(200);
+            return res;
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

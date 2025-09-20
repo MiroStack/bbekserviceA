@@ -134,7 +134,14 @@ public class MinistryController {
         }
     }
 
-
+    @GetMapping("getMinistryStatuses")
+    public ResponseEntity<ApiResponseModel> getMinistryStatuses(){
+        try{
+            return new ResponseEntity<>(serviceImp.getMinistryStatuses(), HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     public String sanitize(String input) {
         return input.replaceAll("[^a-zA-Z0-9-_]", " ");

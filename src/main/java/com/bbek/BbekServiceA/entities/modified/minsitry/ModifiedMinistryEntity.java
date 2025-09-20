@@ -54,5 +54,8 @@ public class ModifiedMinistryEntity {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
+    @Column(name = "total_rows")
+    private int totalRows;
+
 
 }
