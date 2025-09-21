@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface EventService {
-    public List<EventModel> getAllevent();
+    public List<EventModel> getAllevent(String query, int page);
    ApiResponseModel saveEvent(
           EventEntity entity,
           MultipartFile file,

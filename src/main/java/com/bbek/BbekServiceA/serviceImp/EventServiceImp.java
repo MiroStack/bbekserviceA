@@ -35,8 +35,12 @@ public class EventServiceImp implements EventService {
     private final ApiResponseModel res = new ApiResponseModel();
 
     @Override
-    public List<EventModel> getAllevent() {
-        List<EventEntity> eventEntities = eRepo.findAll();
+    public List<EventModel> getAllevent(String query, int page) {
+        System.out.println("Page: "+ page);
+        String queryFormatted = "%"+query+"%";
+        int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+        List<ModifiedEventEntity> eventEntities = eRepo.paginatedEvents(queryFormatted, numberOfRowsToSkip);
+
         try {
             return eventEntities.stream().map(m -> {
                 Optional<EventStatusRfEntity> statusOptional = esRepo.findById(m.getStatusId());
@@ -51,7 +55,8 @@ public class EventServiceImp implements EventService {
                         m.getAttendance(),
                         m.getOffering(),
                         statusName,
-                        m.getDescription()
+                        m.getDescription(),
+                        m.getTotalRows()
                 );
             }).collect(Collectors.toList());
         } catch (Exception e) {
@@ -145,7 +150,8 @@ public class EventServiceImp implements EventService {
                     eventEntity.getAttendance(),
                     eventEntity.getOffering(),
                     eventStatusRfEntity.getStatusName(),
-                    eventEntity.getDescription()
+                    eventEntity.getDescription(),
+                    0
             );
             res.setStatusCode(200);
             res.setMessage(SUCCESS);
@@ -233,7 +239,8 @@ public class EventServiceImp implements EventService {
                         m.getAttendance(),
                         m.getOffering(),
                         statusName,
-                        m.getDescription()
+                        m.getDescription(),
+                        0
                 );
             }).toList();
 

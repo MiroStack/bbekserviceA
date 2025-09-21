@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface MinistryService {
-    public List<MinistryModel> getAllMinistryList();
+    public List<MinistryModel> getAllMinistryList(String query, int page);
     public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, String statusName, MultipartFile file);
     public String getMinistryImage(String ministryName);
     ApiResponseModel getMinistry(Long id);

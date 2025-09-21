@@ -65,9 +65,9 @@ public class EventController {
     }
 
     @GetMapping("getAllEvent")
-    public ResponseEntity<List<EventModel>> getAllEventList() {
+    public ResponseEntity<List<EventModel>> getAllEventList(@RequestParam(value="query", required = false)String query, @RequestParam(value = "page", required = false)int page) {
         try {
-            return new ResponseEntity<List<EventModel>>(eService.getAllevent(), HttpStatus.OK);
+            return new ResponseEntity<List<EventModel>>(eService.getAllevent(query, page), HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<List<EventModel>>(HttpStatus.BAD_REQUEST);
         }

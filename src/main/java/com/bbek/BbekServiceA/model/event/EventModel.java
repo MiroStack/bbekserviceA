@@ -21,4 +21,5 @@ public class EventModel {
     private int offering;
     private String statusName;
     private String description;
+    private int totalRows;
 }

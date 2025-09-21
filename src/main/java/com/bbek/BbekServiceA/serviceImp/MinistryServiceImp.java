@@ -38,8 +38,11 @@ public class MinistryServiceImp implements MinistryService {
     private final ApiResponseModel res = new ApiResponseModel();
 
     @Override
-    public List<MinistryModel> getAllMinistryList() {
-        List<MinistryEntity> ministryEntities = mRepo.findAll();
+    public List<MinistryModel> getAllMinistryList(String query, int page) {
+        System.out.println("Page: "+ page);
+        String queryFormatted = "%"+query+"%";
+        int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+        List<ModifiedMinistryEntity> ministryEntities = mRepo.getPaginatedMinistry(queryFormatted, numberOfRowsToSkip);
         return ministryEntities.stream().map(m -> {
             Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(m.getStatusId());
             MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
@@ -54,7 +57,8 @@ public class MinistryServiceImp implements MinistryService {
                     m.getCreatedDate(),
                     m.getUpdatedDate(),
                     m.getStartTime(),
-                    m.getEndTime()
+                    m.getEndTime(),
+                    m.getTotalRows()
             );
         }).collect(Collectors.toList());
     }
@@ -143,7 +147,8 @@ public class MinistryServiceImp implements MinistryService {
                     ministryEntity.getCreatedDate(),
                     ministryEntity.getUpdatedDate(),
                     ministryEntity.getStartTime(),
-                    ministryEntity.getEndTime()
+                    ministryEntity.getEndTime(),
+                    0
             );
             res.setData(model);
             res.setMessage(SUCCESS);
@@ -196,7 +201,8 @@ public class MinistryServiceImp implements MinistryService {
                         m.getCreatedDate(),
                         m.getUpdatedDate(),
                         m.getStartTime(),
-                        m.getEndTime()
+                        m.getEndTime(),
+                        0
                 );
             }).toList();
             res.setMessage(SUCCESS);
