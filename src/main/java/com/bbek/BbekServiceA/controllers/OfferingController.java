@@ -73,4 +73,13 @@ public class OfferingController {
         }
     }
 
+    @PostMapping("submit_donation")
+    public ResponseEntity<ApiResponseModel> submitDonation(@RequestParam("donationType") Long donationType, @RequestParam("amount") double amount){
+        try{
+            return new ResponseEntity<>(serviceImp.donation(donationType, amount), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

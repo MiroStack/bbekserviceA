@@ -31,7 +31,7 @@ public class MinistryController {
     @GetMapping("getAllMinistry")
     public ResponseEntity<List<MinistryModel>> getAllMinistry(@RequestParam(value = "query", required = false)String query, @RequestParam(value = "page", required = false)int page) {
         try {
-            return new ResponseEntity<List<MinistryModel>>(serviceImp.getAllMinistryList(query, page), HttpStatus.OK);
+            return new ResponseEntity<List<MinistryModel>>(serviceImp.getAllMinistryList(query, page ), HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<List<MinistryModel>>(HttpStatus.BAD_REQUEST);
         }

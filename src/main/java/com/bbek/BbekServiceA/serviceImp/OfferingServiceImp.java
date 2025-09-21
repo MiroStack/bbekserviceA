@@ -13,6 +13,7 @@ import com.bbek.BbekServiceA.service.OfferingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,6 +69,24 @@ public class OfferingServiceImp implements OfferingService {
             oRepo.save(offeringEntity);
             res.setStatusCode(!isUpdate?201:200);
             res.setMessage(!isUpdate?"Donation saved successfully.":"Record updated successfully.");
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ApiResponseModel donation(Long donationType, double amount) {
+       ApiResponseModel res= new ApiResponseModel();
+        try{
+            OfferingEntity entity = new OfferingEntity();
+            entity.setOfferingDate(LocalDateTime.now());
+            entity.setAmount(amount);
+            entity.setMemberName("Unknown Samaritan");
+            entity.setPaymentMethod(3L);
+            entity.setOfferingType(donationType);
+            res.setStatusCode(200);
+            res.setMessage("Successfully transferred the donated amount to Bible Baptist Church account. Thank you for your kindness.");
             return res;
         } catch (Exception e) {
             throw new RuntimeException(e);
