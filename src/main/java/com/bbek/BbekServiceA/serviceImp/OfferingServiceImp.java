@@ -85,6 +85,7 @@ public class OfferingServiceImp implements OfferingService {
             entity.setMemberName("Unknown Samaritan");
             entity.setPaymentMethod(3L);
             entity.setOfferingType(donationType);
+            oRepo.save(entity);
             res.setStatusCode(200);
             res.setMessage("Successfully transferred the donated amount to Bible Baptist Church account. Thank you for your kindness.");
             return res;
