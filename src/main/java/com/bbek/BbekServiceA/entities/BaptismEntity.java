@@ -42,4 +42,8 @@ public class BaptismEntity {
     @Column(name = "preferred_dt")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime preferred_dt;
+
+    @Column(name = "status_id")
+    private Long statusId;
+
 }
