@@ -12,6 +12,7 @@ import com.bbek.BbekServiceA.repository.UserRepo;
 import com.bbek.BbekServiceA.service.AuthService;
 import com.bbek.BbekServiceA.service.BaptismService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,8 @@ public class BaptismServiceImp implements BaptismService {
     UserProfileRepo upRepo;
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    BCryptPasswordEncoder encoder;
     @Override
     public ApiResponseModel submitBaptismRequest(RegistrationModel model) {
         ApiResponseModel res = new ApiResponseModel();
@@ -39,8 +42,12 @@ public class BaptismServiceImp implements BaptismService {
             int year = date.getYear();
             int month = date.getMonthValue();
             int day = date.getDayOfMonth();
-            rModel.setPassword(rModel.getFirstname() + year + month + day);
-            rModel.setUsername(rModel.getEmail());
+
+            userModel.setUsername(rModel.getEmail());
+            userModel.setPassword(encoder.encode(rModel.getFirstname()+year+month+day));
+//            userModel.setRole_id();
+//            userModel.setStatus_id();
+
 
 
 
