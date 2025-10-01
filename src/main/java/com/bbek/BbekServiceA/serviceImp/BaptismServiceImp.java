@@ -12,6 +12,7 @@ import com.bbek.BbekServiceA.repository.MemberRepo;
 import com.bbek.BbekServiceA.repository.UserProfileRepo;
 import com.bbek.BbekServiceA.repository.UserRepo;
 import com.bbek.BbekServiceA.service.BaptismService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class BaptismServiceImp implements BaptismService {
     MemberRepo mRepo;
     @Autowired
     BCryptPasswordEncoder encoder;
+
     @Override
     public ApiResponseModel submitBaptismRequest(RegistrationRequestModel rModel) {
         ApiResponseModel res = new ApiResponseModel();

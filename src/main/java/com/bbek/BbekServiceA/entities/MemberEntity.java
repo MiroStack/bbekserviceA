@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
+
 @Data
+@Entity
 @Table(name = "tbl_member")
 @AllArgsConstructor
 @NoArgsConstructor
 public class MemberEntity {
+    @Id
     @Column(name="id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
