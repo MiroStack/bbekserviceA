@@ -4,6 +4,7 @@ import com.bbek.BbekServiceA.entities.BaptismEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.LoginRequestModel;
 import com.bbek.BbekServiceA.model.RegistrationModel;
+import com.bbek.BbekServiceA.model.RegistrationRequestModel;
 import com.bbek.BbekServiceA.serviceImp.BaptismServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class BaptismController {
     @Autowired
     BaptismServiceImp serviceImp;
     @PostMapping("submitBaptism")
-    public ResponseEntity<ApiResponseModel> submitBaptism(@RequestBody RegistrationModel model){
+    public ResponseEntity<ApiResponseModel> submitBaptism(@RequestBody RegistrationRequestModel model){
         try{
             return new ResponseEntity<>(serviceImp.submitBaptismRequest(model), HttpStatus.OK);
 

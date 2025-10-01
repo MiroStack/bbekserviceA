@@ -4,13 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegistrationRequestModel {
-  private String username;
-  private String password;
-  private String rolename;
   private String firstname;
   private String middlename;
   private String lastname;
@@ -18,5 +17,8 @@ public class RegistrationRequestModel {
   private int age;
   private String birthdate;
   private String email;
-  private String created_dt;
+  private String contactNo;
+  private String gender;
+  private LocalDate preferred_dt;
+  private String testimony;
 }

@@ -1,7 +1,7 @@
 package com.bbek.BbekServiceA.serviceImp;
 
-import com.bbek.BbekServiceA.entities.UserModel;
-import com.bbek.BbekServiceA.entities.UserProfileModel;
+import com.bbek.BbekServiceA.entities.UserAccountEntity;
+import com.bbek.BbekServiceA.entities.UserProfileEntity;
 import com.bbek.BbekServiceA.model.*;
 import com.bbek.BbekServiceA.repository.RoleRepo;
 import com.bbek.BbekServiceA.repository.UserProfileRepo;
@@ -43,7 +43,7 @@ public class AuthServiceImp implements AuthService {
     @Override
     public ApiResponseModel login(String username, String password) {
         try {
-            UserModel user = userRepo.findByUsername(username);
+            UserAccountEntity user = userRepo.findByUsername(username);
             ApiResponseModel res = new ApiResponseModel();
             System.out.println("My password:" + encoder.encode(password));
             System.out.println("Encoded password"+ user.getPassword());
@@ -56,7 +56,7 @@ public class AuthServiceImp implements AuthService {
                 Optional<RoleModel> roleModelOptional = roleRepo.findById(roleId);
                 if(roleModelOptional.isPresent()){
                     RoleModel roleModel = roleModelOptional.get();
-                    UserProfileModel profileModel = profileRepo.findByUserId(user.getId());
+                    UserProfileEntity profileModel = profileRepo.findByUserId(user.getId());
                     String fullName = profileModel.getFirstname()+" "+profileModel.getMiddlename()+" "+profileModel.getLastname();
                     String roleName = roleModel.getRoleName();
                     TokenModel tokenModel = new TokenModel();
@@ -88,9 +88,9 @@ public class AuthServiceImp implements AuthService {
     @Override
     public ApiResponseModel register(RegistrationRequestModel model) {
         ApiResponseModel res = new ApiResponseModel();
-        UserModel userModel = new UserModel();
-        UserModel checkModel = userRepo.findByUsername(model.getUsername());
-        UserProfileModel profileModel = new UserProfileModel();
+        UserAccountEntity userModel = new UserAccountEntity();
+        UserAccountEntity checkModel = userRepo.findByUsername(model.getUsername());
+        UserProfileEntity profileModel = new UserProfileEntity();
         try{
             if(checkModel != null){
                 res.setMessage("Username already exist!");
@@ -125,7 +125,7 @@ public class AuthServiceImp implements AuthService {
                     break;
             }
             userModel.setStatus_id(8);
-            UserModel saveAccount = userRepo.save(userModel);
+            UserAccountEntity saveAccount = userRepo.save(userModel);
             //profile
             profileModel.setFirstname(model.getFirstname());
             profileModel.setMiddlename(model.getMiddlename());
@@ -144,7 +144,6 @@ public class AuthServiceImp implements AuthService {
             throw new RuntimeException(e);
         }
     }
-
     public String verify(TokenModel model, String password) {
         Authentication authentication = authManager
                 .authenticate(new UsernamePasswordAuthenticationToken(model.getUsername(), password));

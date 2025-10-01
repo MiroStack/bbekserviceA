@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,32 +19,40 @@ public class BaptismEntity {
     @Id
     @Column(name="id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    @Column(name="firstname")
-    String firstname;
-
-    @Column(name="lastname")
-    String lastname;
-
-    @Column(name="email")
-    String email;
-
-    @Column(name = "phone_number")
-    String phoneNumber;
+    @Column(name="profile_id")
+    private long profileId;
 
     @Column(name = "testimony")
-    String testimony;
-
-    @Column(name = "created_dt")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime createdDate;
+    private String testimony;
 
     @Column(name = "preferred_dt")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime preferred_dt;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate preferred_dt;
 
     @Column(name = "status_id")
     private Long statusId;
+
+    @Column(name = "baptism_date")
+    private String baptismDate;
+
+    @Column(name = "scheduled_dt")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime scheduledDate;
+
+    @Column(name="baptism_officiant")
+    private String baptismOfficiant;
+
+    @Column(name = "baptism_officiant_id")
+    private long baptismOfficiantId;
+
+    @Column(name = "created_dt")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate createdDate;
+
+
+
+
 
 }

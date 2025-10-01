@@ -6,7 +6,7 @@ import lombok.Data;
 @Entity
 @Table(name = "user_profile")
 @Data
-public class UserProfileModel {
+public class UserProfileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -21,12 +21,24 @@ public class UserProfileModel {
     private int age;
     @Column(name = "birthdate")
     private String birthdate;
-    @Column(name = "user_id")
-    private Long userId;
     @Column(name="address")
     private String address;
+    @Column(name = "user_id")
+    private Long userId;
     @Column(name = "email")
     private String email;
     @Column(name = "created_dt")
     private String createdDate;
+    @Column(name = "contact_no")
+    private String contactNo;
+    @Column(name = "emergency_contact_person")
+    private String emergencyContactPerson;
+    @Column(name="emergency_contact_no")
+    private String emergencyContactNo;
+    @Column(name = "gender")
+    private String gender;
+    @Column(name="profile_image")
+    private String profileImage;
+    @Column(name = "role_id")
+    private Long roleId;
 }

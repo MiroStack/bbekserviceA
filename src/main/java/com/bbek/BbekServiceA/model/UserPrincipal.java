@@ -1,7 +1,7 @@
 package com.bbek.BbekServiceA.model;
 
 
-import com.bbek.BbekServiceA.entities.UserModel;
+import com.bbek.BbekServiceA.entities.UserAccountEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class UserPrincipal implements UserDetails {
-    private UserModel user;
-    public UserPrincipal(UserModel user){
+    private UserAccountEntity user;
+    public UserPrincipal(UserAccountEntity user){
         this.user = user;
     }
 

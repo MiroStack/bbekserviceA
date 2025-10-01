@@ -6,7 +6,7 @@ import lombok.Data;
 @Entity
 @Table(name = "user_account")
 @Data
-public class UserModel {
+public class UserAccountEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,12 +14,8 @@ public class UserModel {
     @Column(name = "username")
     String username;
 
-    @Column(name= "password")
+    @Column(name= "hashed_password")
     String password;
 
-    @Column(name = "role_id")
-    int role_id;
 
-    @Column(name = "status_id")
-    int status_id;
 }

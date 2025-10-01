@@ -1,6 +1,6 @@
 package com.bbek.BbekServiceA.serviceImp;
 
-import com.bbek.BbekServiceA.entities.UserModel;
+import com.bbek.BbekServiceA.entities.UserAccountEntity;
 import com.bbek.BbekServiceA.model.UserPrincipal;
 import com.bbek.BbekServiceA.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class MyUserDetailsService implements UserDetailsService {
     private UserRepo repo;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserModel user = repo.findByUsername(username);
+        UserAccountEntity user = repo.findByUsername(username);
         if(user == null){
             System.out.println(USER_NOT_FOUND);
             throw new UsernameNotFoundException(USER_NOT_FOUND);
