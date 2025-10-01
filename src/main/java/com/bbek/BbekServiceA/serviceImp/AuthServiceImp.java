@@ -2,10 +2,11 @@ package com.bbek.BbekServiceA.serviceImp;
 
 import com.bbek.BbekServiceA.entities.UserAccountEntity;
 import com.bbek.BbekServiceA.entities.UserProfileEntity;
+import com.bbek.BbekServiceA.entities.reference.RoleEntity;
 import com.bbek.BbekServiceA.model.*;
-import com.bbek.BbekServiceA.repository.RoleRepo;
 import com.bbek.BbekServiceA.repository.UserProfileRepo;
 import com.bbek.BbekServiceA.repository.UserRepo;
+import com.bbek.BbekServiceA.repository.reference.RoleRepo;
 import com.bbek.BbekServiceA.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
 import static com.bbek.BbekServiceA.util.Constant.USER_NOT_FOUND;
+
 @Service
 public class AuthServiceImp implements AuthService {
     @Autowired
@@ -44,45 +46,36 @@ public class AuthServiceImp implements AuthService {
     public ApiResponseModel login(String username, String password) {
         try {
             UserAccountEntity user = userRepo.findByUsername(username);
+            if(user == null)return new ApiResponseModel("Invalid username.", 404, "");
             ApiResponseModel res = new ApiResponseModel();
-            System.out.println("My password:" + encoder.encode(password));
-            System.out.println("Encoded password"+ user.getPassword());
             if (!encoder.matches(password, user.getPassword())) {
                 res.setMessage(USER_NOT_FOUND);
                 res.setStatusCode(404);
                 return res;
-            }else{
-                Long roleId = 1L;
-                Optional<RoleModel> roleModelOptional = roleRepo.findById(roleId);
-                if(roleModelOptional.isPresent()){
-                    RoleModel roleModel = roleModelOptional.get();
-                    UserProfileEntity profileModel = profileRepo.findByUserId(user.getId());
-                    String fullName = profileModel.getFirstname()+" "+profileModel.getMiddlename()+" "+profileModel.getLastname();
-                    String roleName = roleModel.getRoleName();
-                    TokenModel tokenModel = new TokenModel();
-                    tokenModel.setUsername(username);
-                    tokenModel.setRoleName(roleName);
-                    tokenModel.setFullName(fullName);
-                    tokenModel.setEmail(profileModel.getEmail());
-                    String token = verify(tokenModel, password);
-                    LoginResponseModel model = new LoginResponseModel();
-                    model.setToken(token);
-                    model.setRole(roleName);
-                    model.setFullName(fullName);
-                    model.setEmail(profileModel.getEmail());
-                    res.setStatusCode(200);
-                    res.setMessage(SUCCESS);
-                    res.setData(model);
-                    return res;
-                }
+            } else {
+                UserProfileEntity upe = profileRepo.findByUserId(user.getId());
+                Optional<RoleEntity> roleEntityOptional = roleRepo.findById(upe.getRoleId());
+                RoleEntity roleEntity = roleEntityOptional.orElse(null);
+                if (roleEntity == null) return new ApiResponseModel("Invalid role id!", 404, "");
+
+                if (roleEntity.getId() == 3) return new ApiResponseModel("Your account is for approval.", 403, "");
+
+                TokenModel tokenModel = new TokenModel();
+                tokenModel.setUsername(username);
+                String token = verify(tokenModel, password);
+                LoginResponseModel model = new LoginResponseModel();
+                model.setToken(token);
+                res.setStatusCode(200);
+                res.setMessage(SUCCESS);
+                res.setData(model);
+                return res;
+
 
             }
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return null;
     }
 
     @Override

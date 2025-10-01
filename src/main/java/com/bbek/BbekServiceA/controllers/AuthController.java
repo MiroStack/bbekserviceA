@@ -55,17 +55,11 @@ public class AuthController {
             return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
         }
         String username = claims.get("username", String.class);
-        String fullname = claims.get("fullname", String.class);
-        String email = claims.get("email", String.class);
-        String role = claims.get("role", String.class);
+
 
 
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("username", username);
-        userInfo.put("role", role);
-        userInfo.put("fullname", fullname);
-        userInfo.put("email", email);
-        res.setData(userInfo);
         res.setStatusCode(200);
         res.setMessage(SUCCESS);
         return new ResponseEntity<>(res, HttpStatus.OK);

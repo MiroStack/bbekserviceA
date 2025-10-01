@@ -34,7 +34,7 @@ public class BaptismEntity {
     @Column(name = "status_id")
     private Long statusId;
 
-    @Column(name = "baptism_date")
+    @Column(name = "baptism_dt")
     private String baptismDate;
 
     @Column(name = "scheduled_dt")

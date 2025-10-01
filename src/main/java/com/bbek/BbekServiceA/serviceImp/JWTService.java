@@ -45,9 +45,6 @@ public class JWTService {
                 .claims(claims)
                 .subject(model.getUsername())
                 .claim("username", model.getUsername())
-                .claim("fullname", model.getFullName())
-                .claim("role", model.getRoleName())
-                .claim("email", model.getEmail())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + (60 * 60 * 30 * 1000))) // 30 hours
                 .signWith(getKey())
