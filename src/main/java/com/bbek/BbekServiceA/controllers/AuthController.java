@@ -48,20 +48,13 @@ public class AuthController {
     @GetMapping("/validate")
     public ResponseEntity<ApiResponseModel> validateToken(@RequestParam String token) {
         ApiResponseModel res = new ApiResponseModel();
-        Claims claims = jwtService.extractUserClaims(token);
-        if (claims == null) {
-            res.setStatusCode(401);
-            res.setMessage("Invalid Token");
+        res = service.getUserInfo(token);
+        if(res.getStatusCode() == 401){
             return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
+        } else if (res.getStatusCode() == 404) {
+            return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
+        }else{
+            return ResponseEntity.ok(res);
         }
-        String username = claims.get("username", String.class);
-
-
-
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("username", username);
-        res.setStatusCode(200);
-        res.setMessage(SUCCESS);
-        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

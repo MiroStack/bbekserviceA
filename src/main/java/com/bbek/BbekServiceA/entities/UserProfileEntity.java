@@ -41,4 +41,6 @@ public class UserProfileEntity {
     private String profileImage;
     @Column(name = "role_id")
     private Long roleId;
+    @Column(name = "image_uuid")
+    private String imageUUID;
 }

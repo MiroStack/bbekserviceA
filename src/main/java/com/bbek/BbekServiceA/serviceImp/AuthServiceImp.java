@@ -8,7 +8,10 @@ import com.bbek.BbekServiceA.repository.UserProfileRepo;
 import com.bbek.BbekServiceA.repository.UserRepo;
 import com.bbek.BbekServiceA.repository.reference.RoleRepo;
 import com.bbek.BbekServiceA.service.AuthService;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
@@ -42,6 +47,8 @@ public class AuthServiceImp implements AuthService {
     private BCryptPasswordEncoder encoder;
 
 
+
+
     @Override
     public ApiResponseModel login(String username, String password) {
         try {
@@ -57,9 +64,7 @@ public class AuthServiceImp implements AuthService {
                 Optional<RoleEntity> roleEntityOptional = roleRepo.findById(upe.getRoleId());
                 RoleEntity roleEntity = roleEntityOptional.orElse(null);
                 if (roleEntity == null) return new ApiResponseModel("Invalid role id!", 404, "");
-
                 if (roleEntity.getId() == 3) return new ApiResponseModel("Your account is for approval.", 403, "");
-
                 TokenModel tokenModel = new TokenModel();
                 tokenModel.setUsername(username);
                 String token = verify(tokenModel, password);
@@ -69,8 +74,6 @@ public class AuthServiceImp implements AuthService {
                 res.setMessage(SUCCESS);
                 res.setData(model);
                 return res;
-
-
             }
 
         } catch (Exception e) {
@@ -81,6 +84,44 @@ public class AuthServiceImp implements AuthService {
     @Override
     public ApiResponseModel register(RegistrationRequestModel model) {
         return null;
+    }
+
+    @Override
+    public ApiResponseModel getUserInfo(String token) {
+        ApiResponseModel res = new ApiResponseModel();
+        Claims claims = jwtService.extractUserClaims(token);
+        if (claims == null) {
+            res.setStatusCode(401);
+            res.setMessage("Invalid Token!");
+            return res;
+        }
+        String username = claims.get("username", String.class);
+        UserAccountEntity entity = userRepo.findByUsername(username);
+        UserProfileEntity upe = profileRepo.findByUserId(entity.getId());
+        if(upe == null) return new ApiResponseModel("No User information found.",404,"");
+        Optional<RoleEntity> rep= roleRepo.findById(upe.getRoleId());
+        RoleEntity re = rep.orElse(null);
+        if(re == null)return new ApiResponseModel("Invalid Role!", 403, "");
+        UserInfoModel infoModel = new UserInfoModel(
+                upe.getFirstname(),
+                upe.getMiddlename(),
+                upe.getLastname(),
+                upe.getAge(),
+                upe.getBirthdate(),
+                upe.getAddress(),
+                upe.getEmail(),
+                upe.getCreatedDate(),
+                upe.getContactNo(),
+                upe.getEmergencyContactPerson(),
+                upe.getEmergencyContactNo(),
+                upe.getGender(),
+                upe.getImageUUID(),
+                re.getRoleName()
+        );
+        res.setData(infoModel);
+        res.setStatusCode(200);
+        res.setMessage(SUCCESS);
+        return res;
     }
 
     //    @Override

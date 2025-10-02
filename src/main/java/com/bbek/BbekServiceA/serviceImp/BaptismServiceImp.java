@@ -46,6 +46,8 @@ public class BaptismServiceImp implements BaptismService {
             int year = date.getYear();
             int month = date.getMonthValue();
             int day = date.getDayOfMonth();
+            UserAccountEntity userAccountEntity = userRepo.findByUsername(rModel.getEmail());
+            if(userAccountEntity != null) return new ApiResponseModel("Your email is already registered", 400,"");
             uae.setUsername(rModel.getEmail());
             uae.setPassword(encoder.encode(rModel.getFirstname()+year+month+day));
             UserAccountEntity savedUae = userRepo.save(uae);

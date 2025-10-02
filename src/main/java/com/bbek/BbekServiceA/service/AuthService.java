@@ -7,4 +7,5 @@ import com.bbek.BbekServiceA.model.RegistrationRequestModel;
 public interface AuthService {
     public ApiResponseModel login(String username, String password);
     public ApiResponseModel register(RegistrationRequestModel model);
+    public ApiResponseModel getUserInfo(String token);
 }
