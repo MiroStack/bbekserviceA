@@ -1,5 +1,4 @@
-package com.bbek.BbekServiceA.entities;
-
+package com.bbek.BbekServiceA.entities.modified.baptism;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BaptismEntity {
+public class ModifiedBaptismEntity {
     @Id
     @Column(name="id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,14 +44,13 @@ public class BaptismEntity {
     private String baptismOfficiant;
 
     @Column(name = "baptism_officiant_id")
-    private long baptismOfficiantId;
+    private Long baptismOfficiantId;
 
     @Column(name = "created_dt")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate createdDate;
 
-
-
-
+    @Column(name = "total_rows")
+    private int totalRows;
 
 }

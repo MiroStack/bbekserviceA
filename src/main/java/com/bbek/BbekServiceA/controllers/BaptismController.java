@@ -27,4 +27,14 @@ public class BaptismController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("getBaptism")
+    public ResponseEntity<ApiResponseModel> getBaptism(@RequestParam(value = "query", required = false) String query, @RequestParam(value = "page", required = false) int page){
+        try{
+            return ResponseEntity.ok(serviceImp.getPaginatedBaptism(query, page));
+        }catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+    }
 }
