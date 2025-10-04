@@ -50,6 +50,12 @@ public class ModifiedBaptismEntity {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate createdDate;
 
+    @Column(name = "certificate_status")
+    private Long certificateStatus;
+
+    @Column(name="location")
+    private String location;
+
     @Column(name = "total_rows")
     private int totalRows;
 

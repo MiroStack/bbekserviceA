@@ -45,11 +45,17 @@ public class BaptismEntity {
     private String baptismOfficiant;
 
     @Column(name = "baptism_officiant_id")
-    private long baptismOfficiantId;
+    private Long baptismOfficiantId;
 
     @Column(name = "created_dt")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate createdDate;
+
+    @Column(name = "certificate_status")
+    private Long certificateStatus;
+
+    @Column(name="location")
+    private String location;
 
 
 

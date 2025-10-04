@@ -17,10 +17,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BaptismResponseModel {
-    private UserProfileEntity userInfoModel;
+    private Long id;
+    private UserInfoModel userInfoModel;
     private String testimony;
     private LocalDate preferred_dt;
-    private Long statusId;
+    private String status;
+    private String certificateStatus;
+    private String location;
     private String baptismDate;
     private LocalDateTime scheduledDate;
     private String baptismOfficiant;

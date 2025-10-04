@@ -21,6 +21,8 @@ public interface BaptismRepo extends JpaRepository<BaptismEntity, Long> {
             "bap.scheduled_dt, " +
             "bap.baptism_officiant, " +
             "bap.baptism_officiant_id, " +
+            "bap.location, " +
+            "bap.certificate_status, " +
             "up.firstname, " +
             "up.middlename, " +
             "up.lastname, " +
