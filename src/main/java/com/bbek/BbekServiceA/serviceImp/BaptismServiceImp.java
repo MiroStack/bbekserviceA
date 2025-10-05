@@ -61,7 +61,7 @@ public class BaptismServiceImp implements BaptismService {
     @Override
     public ApiResponseModel submitBaptismRequest(RegistrationRequestModel rModel) {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
 
             UserAccountEntity uae = new UserAccountEntity();
             UserProfileEntity upe = new UserProfileEntity();
@@ -72,9 +72,9 @@ public class BaptismServiceImp implements BaptismService {
             int month = date.getMonthValue();
             int day = date.getDayOfMonth();
             UserAccountEntity userAccountEntity = userRepo.findByUsername(rModel.getEmail());
-            if(userAccountEntity != null) return new ApiResponseModel("Your email is already registered", 400,"");
+            if (userAccountEntity != null) return new ApiResponseModel("Your email is already registered", 400, "");
             uae.setUsername(rModel.getEmail());
-            uae.setPassword(encoder.encode(rModel.getFirstname()+year+month+day));
+            uae.setPassword(encoder.encode(rModel.getFirstname() + year + month + day));
             UserAccountEntity savedUae = userRepo.save(uae);
 
             upe.setFirstname(rModel.getFirstname());
@@ -96,6 +96,7 @@ public class BaptismServiceImp implements BaptismService {
             bae.setProfileId(savedUpe.getId());
             bae.setStatusId(9L);
             bae.setTestimony(rModel.getTestimony());
+            bae.setCertificateStatus(1L);
             bRepo.save(bae);
             res.setMessage("Your application is successfully submitted.");
             res.setStatusCode(200);
@@ -107,14 +108,14 @@ public class BaptismServiceImp implements BaptismService {
 
     @Override
     public ApiResponseModel getPaginatedBaptism(String query, int page) {
-        try{
+        try {
             ApiResponseModel res = new ApiResponseModel();
-            String queryFormatted = "%"+query+"%";
-            int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+            String queryFormatted = "%" + query + "%";
+            int numberOfRowsToSkip = page == 1 ? 0 : (page - 1) * 10;
             List<ModifiedBaptismEntity> list = bRepo.paginatedBaptism(queryFormatted, numberOfRowsToSkip);
-            List<BaptismResponseModel> data = list.stream().map(m->{
+            List<BaptismResponseModel> data = list.stream().map(m -> {
                 Optional<UserProfileEntity> uaeOptional = upRepo.findById(m.getProfileId());
-                UserProfileEntity uae =uaeOptional.orElse(new UserProfileEntity());
+                UserProfileEntity uae = uaeOptional.orElse(new UserProfileEntity());
                 BaptismResponseModel br = new BaptismResponseModel();
                 Optional<RoleEntity> reo = rRepo.findById(uae.getRoleId());
                 RoleEntity roleEntity = reo.orElse(null);
@@ -165,12 +166,12 @@ public class BaptismServiceImp implements BaptismService {
     @Override
     public ApiResponseModel getBaptismOfficiants() {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             List<UserProfileEntity> list = upRepo.findByRoleId(7L);
-            List<UserAndIdModel> officiantList = list.stream().map(m->{
+            List<UserAndIdModel> officiantList = list.stream().map(m -> {
                 UserAndIdModel model = new UserAndIdModel();
                 model.setId(m.getId());
-                model.setFullName(m.getFirstname()+" "+m.getMiddlename()+" "+m.getLastname());
+                model.setFullName(m.getFirstname() + " " + m.getMiddlename() + " " + m.getLastname());
                 return model;
             }).toList();
             res.setData(officiantList);
@@ -185,7 +186,7 @@ public class BaptismServiceImp implements BaptismService {
     @Override
     public ApiResponseModel getCertificateStatuses() {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             List<CertificateStatusEntity> list = ctRepo.findAll();
             res.setData(list);
             res.setMessage(SUCCESS);
@@ -199,7 +200,7 @@ public class BaptismServiceImp implements BaptismService {
     @Override
     public ApiResponseModel getBaptismStatuses() {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             List<StatusEntity> list = stRepo.findAll();
             res.setData(list);
             res.setMessage(SUCCESS);
@@ -212,40 +213,113 @@ public class BaptismServiceImp implements BaptismService {
 
     @Override
     public ApiResponseModel sentBaptismSchedule(BaptismScheduleModel model) {
-        try{
+        try {
             ApiResponseModel res = new ApiResponseModel();
             Optional<BaptismEntity> beo = bRepo.findById(model.getId());
             BaptismEntity bae = beo.orElse(null);
-            Optional<UserProfileEntity> uae = upRepo.findById(bae.getProfileId());
-            UserProfileEntity upe = uae.orElse(null);
-            String message = "Dear "+upe.getFirstname() +" "+upe.getLastname()+",\n" +
-                    "\n" +
-                    "Thank you for showing interest in our church and taking this important step in your faith journey.\n" +
-                    "\n" +
-                    "We’re pleased to inform you that your baptism has been scheduled for "+ model.getDateString() +".\n" +
-                    "\n" +
-                    "Please arrive at least 30 minutes before the ceremony for registration and orientation. Our team will be there to guide and assist you throughout the process.\n" +
-                    "\n" +
-                    "If you have any questions or need to make changes to your schedule, feel free to reply to this email or contact us at (046) 123-4567 /  info@bbekawit.org .\n" +
-                    "\n" +
-                    "We look forward to celebrating this special moment with you!\n" +
-                    "\n" +
-                    "Blessings,\n" +
-                    "BIBLE BAPTIST OF EKLESSIA\n" +
-                    "485 Acacia St. Villa Ramirez Tabon 1, Kawit Cavite";
+            Optional<UserProfileEntity> upo = upRepo.findById(bae.getProfileId());
+            UserProfileEntity upe = upo.orElse(null);
+            Optional<UserAccountEntity> uao = userRepo.findById(upe.getUserId());
+            UserAccountEntity uae = uao.orElse(null);
+            MemberEntity me = new MemberEntity();
+            LocalDateTime date = LocalDateTime.now();
+            int year = date.getYear();
+            int month = date.getMonthValue();
+            int day = date.getDayOfMonth();
+            String password = upe.getFirstname().replace(" ", "").toLowerCase() +year+month+day;
+            uae.setPassword(encoder.encode(password));
+            userRepo.save(uae);
+            if (model.getBaptismStatusId() == 8) {
+                String message = "Dear "+upe.getFirstname() +" "+upe.getLastname()+" ,\n" +
+                        "\n" +
+                        "We are overjoyed to welcome you as an official member of Bible Baptist of Eklessia! Your decision to become part of our community is truly a blessing, and we thank God for guiding you to our family of faith.\n" +
+                        "\n" +
+                        "As a member, you are now part of a loving and supportive community that seeks to grow together in faith, serve others with compassion, and share the message of God’s love. We encourage you to join our worship services, ministry activities, and fellowship gatherings, where you can deepen your connection with God and with your fellow believers.\n" +
+                        "We also generate an account for you so that you can login in our website and view upcoming events or become part of our ministries activities. \n" +
+                        "Username: "+uae.getUsername()+"\n"+
+                        "Password: "+password+"\n"+
+                        "If you have any questions or would like to get involved in our ministries, please don’t hesitate to reach out to us. We look forward to walking alongside you in your spiritual journey.\n" +
+                        "\n" +
+                        "Once again, welcome to the family — we’re so glad you’re here!\n" +
+                        "\n" +
+                        "With blessings and joy,\n" +
+                        "Staff Admin\n" +
+                        "BIBLE BAPTIST OF EKLESSIA\n" +
+                        "(046) 123-4567 /  info@bbekawit.org\n"+
+                        "485 Acacia St. Villa Ramirez Tabon 1, Kawit Cavite";
 
-            emailSenderServiceImp.sendEmailMessage(model.getEmail(), message, "BAPTISM APPLICATION");
+                emailSenderServiceImp.sendEmailMessage(model.getEmail(), message, "BAPTISM APPLICATION");
+                upe.setRoleId(1L);
+                upRepo.save(upe);
+                bae.setStatusId(model.getBaptismStatusId());
+                bae.setCertificateStatus(model.getCertificationId());
+                bae.setBaptismDate(model.getBaptismDate());
+                bae.setBaptismOfficiant(model.getBaptismOfficiant());
+                bae.setBaptismOfficiantId(model.getBaptismOfficiantId());
+                bae.setLocation(model.getLocation());
+                bRepo.save(bae);
+                me.setProfileId(upe.getId());
+                me.setStatusId(8L);
+                me.setActive(true);
+                me.setJoinDate(date.toString());
+                me.setMemberName(upe.getFirstname()+" "+upe.getMiddlename()+" "+upe.getLastname());
+                mRepo.save(me);
+                res.setStatusCode(200);
+                res.setMessage(SUCCESS);
+                return res;
 
-            bae.setStatusId(model.getBaptismStatusId());
-            bae.setCertificateStatus(model.getCertificationId());
-            bae.setBaptismDate(model.getBaptismDate());
-            bae.setBaptismOfficiant(model.getBaptismOfficiant());
-            bae.setBaptismOfficiantId(model.getBaptismOfficiantId());
-            bae.setLocation(model.getLocation());
-            bRepo.save(bae);
-            res.setStatusCode(200);
-            res.setMessage(SUCCESS);
-            return res;
+            } else if(model.getBaptismStatusId() == 1) {
+                String message = "Dear " + upe.getFirstname() + " " + upe.getLastname() + ",\n" +
+                        "\n" +
+                        "Thank you for showing interest in our church and taking this important step in your faith journey.\n" +
+                        "\n" +
+                        "We’re pleased to inform you that your baptism has been scheduled for " + model.getDateString() + ".\n" +
+                        "\n" +
+                        "Please arrive at least 30 minutes before the ceremony for registration and orientation. Our team will be there to guide and assist you throughout the process.\n" +
+                        "\n" +
+                        "If you have any questions or need to make changes to your schedule, feel free to reply to this email or contact us at (046) 123-4567 /  info@bbekawit.org .\n" +
+                        "\n" +
+                        "We look forward to celebrating this special moment with you!\n" +
+                        "\n" +
+                        "Blessings,\n" +
+                        "BIBLE BAPTIST OF EKLESSIA\n" +
+                        "485 Acacia St. Villa Ramirez Tabon 1, Kawit Cavite";
+
+                emailSenderServiceImp.sendEmailMessage(model.getEmail(), message, "BAPTISM APPLICATION");
+
+                bae.setStatusId(model.getBaptismStatusId());
+                bae.setCertificateStatus(model.getCertificationId());
+                bae.setBaptismDate(model.getBaptismDate());
+                bae.setBaptismOfficiant(model.getBaptismOfficiant());
+                bae.setBaptismOfficiantId(model.getBaptismOfficiantId());
+                bae.setLocation(model.getLocation());
+                bRepo.save(bae);
+                res.setStatusCode(200);
+                res.setMessage(SUCCESS);
+                return res;
+            }else{
+                String message = "Dear " + upe.getFirstname() + " " + upe.getLastname() + ",\n" +
+                        "Thank you for your interest in becoming a member of Bible Baptist of Eklessia. We truly appreciate the time, prayer, and thought you’ve given in taking this step toward joining our church community.\n" +
+                        "\n" +
+                        "After careful consideration and prayerful review, we regret to inform you that your membership application has not been approved at this time. Please know that this decision was made with much thought and discernment, and it does not reflect a lack of value or love for you as a person.\n" +
+                        "\n" +
+                        "We encourage you to continue attending our worship services and church activities. You are always welcome in our community, and we hope to continue walking with you in faith and fellowship.\n" +
+                        "\n" +
+                        "If you would like to discuss this further or seek guidance on how to move forward, please don’t hesitate to reach out to us. Our pastoral team would be happy to speak and pray with you.\n" +
+                        "\n" +
+                        "May God’s grace and peace continue to be with you always.\n" +
+                        "\n" +
+                        "With compassion and blessings," +
+                        "\n" +
+                        "Blessings,\n" +
+                        "BIBLE BAPTIST OF EKLESSIA\n" +
+                        "485 Acacia St. Villa Ramirez Tabon 1, Kawit Cavite";
+
+                emailSenderServiceImp.sendEmailMessage(model.getEmail(), message, "BAPTISM APPLICATION");
+                res.setStatusCode(200);
+                res.setMessage(SUCCESS);
+                return res;
+            }
 
 
         } catch (Exception e) {
