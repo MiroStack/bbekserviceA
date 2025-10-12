@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface EventService {
-    public List<EventModel> getAllevent(String query, int page);
+    public List<EventModel> getAllevent(String query, int page, String status);
    ApiResponseModel saveEvent(
           EventEntity entity,
           MultipartFile file,
@@ -33,7 +33,7 @@ public interface EventService {
     public String getEventImage(String eventName);
 
     ApiResponseModel getUpcomingEvent();
-    ApiResponseModel getPaginatedEvents(String query, int numberOfRowsToSkip);
+    ApiResponseModel getPaginatedEvents(String query, int numberOfRowsToSkip, String status);
     ApiResponseModel getAllEventStatuses();
 
 }

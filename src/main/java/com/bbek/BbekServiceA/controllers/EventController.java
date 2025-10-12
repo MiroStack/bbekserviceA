@@ -65,9 +65,9 @@ public class EventController {
     }
 
     @GetMapping("getAllEvent")
-    public ResponseEntity<List<EventModel>> getAllEventList(@RequestParam(value="query", required = false)String query, @RequestParam(value = "page", required = false)int page) {
+    public ResponseEntity<List<EventModel>> getAllEventList(@RequestParam(value="query", required = false)String query, @RequestParam(value = "page", required = false)int page, @RequestParam(value = "status") String status) {
         try {
-            return new ResponseEntity<List<EventModel>>(eService.getAllevent(query, page), HttpStatus.OK);
+            return new ResponseEntity<List<EventModel>>(eService.getAllevent(query, page, status), HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<List<EventModel>>(HttpStatus.BAD_REQUEST);
         }
@@ -126,9 +126,9 @@ public class EventController {
     }
 
     @GetMapping("getPaginatedEvents")
-    public ResponseEntity<ApiResponseModel> getPaginatedEvents(@RequestParam(value="query", required = false)String query, @RequestParam(value = "page", required = false)int page){
+    public ResponseEntity<ApiResponseModel> getPaginatedEvents(@RequestParam(value="query", required = false)String query, @RequestParam(value = "page", required = false)int page, String status){
         try{
-            return new ResponseEntity<>(eService.getPaginatedEvents(query, page), HttpStatus.OK);
+            return new ResponseEntity<>(eService.getPaginatedEvents(query, page, status), HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity
                     .badRequest()

@@ -35,11 +35,11 @@ public class EventServiceImp implements EventService {
     private final ApiResponseModel res = new ApiResponseModel();
 
     @Override
-    public List<EventModel> getAllevent(String query, int page) {
+    public List<EventModel> getAllevent(String query, int page, String status) {
         System.out.println("Page: "+ page);
         String queryFormatted = "%"+query+"%";
         int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
-        List<ModifiedEventEntity> eventEntities = eRepo.paginatedEvents(queryFormatted, numberOfRowsToSkip);
+        List<ModifiedEventEntity> eventEntities = eRepo.paginatedEvents(queryFormatted, numberOfRowsToSkip, status);
 
         try {
             return eventEntities.stream().map(m -> {
@@ -64,6 +64,8 @@ public class EventServiceImp implements EventService {
         }
     }
 
+
+
     @Override
     public ApiResponseModel saveEvent(EventEntity entity,
                                       MultipartFile file,
@@ -84,7 +86,8 @@ public class EventServiceImp implements EventService {
             String filePath = "";
             if (isUpdate) {
                 Optional<EventEntity> entityOptional = eRepo.findById(entity.getId());
-                EventEntity oldEntity = entity1 = entityOptional.orElse(null);
+                EventEntity oldEntity = entityOptional.orElse(null);
+
                 entity1.setFilePath(oldEntity.getFilePath());
                 entity1.setUpdateDate(LocalDateTime.now());
             }else{
@@ -254,13 +257,13 @@ public class EventServiceImp implements EventService {
     }
 
     @Override
-    public ApiResponseModel getPaginatedEvents(String query, int page) {
+    public ApiResponseModel getPaginatedEvents(String query, int page,  String status) {
        ApiResponseModel res = new ApiResponseModel();
         try{
             System.out.println("Page: "+ page);
             String queryFormatted = "%"+query+"%";
             int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
-            List<ModifiedEventEntity> list = eRepo.paginatedEvents(queryFormatted, numberOfRowsToSkip);
+            List<ModifiedEventEntity> list = eRepo.paginatedEvents(queryFormatted, numberOfRowsToSkip, status);
             res.setMessage(SUCCESS);
             res.setData(list);
             res.setStatusCode(200);
