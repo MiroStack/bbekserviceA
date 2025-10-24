@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,7 +36,8 @@ public class BaptismEntity {
     private Long statusId;
 
     @Column(name = "baptism_dt")
-    private String baptismDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime baptismDate;
 
     @Column(name = "scheduled_dt")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")

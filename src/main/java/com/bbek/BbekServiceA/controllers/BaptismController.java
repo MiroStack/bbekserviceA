@@ -5,6 +5,7 @@ import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.LoginRequestModel;
 import com.bbek.BbekServiceA.model.RegistrationModel;
 import com.bbek.BbekServiceA.model.RegistrationRequestModel;
+import com.bbek.BbekServiceA.model.baptism.AddBaptismRequestModel;
 import com.bbek.BbekServiceA.model.baptism.BaptismScheduleModel;
 import com.bbek.BbekServiceA.serviceImp.BaptismServiceImp;
 import com.bbek.BbekServiceA.serviceImp.EmailSenderServiceImp;
@@ -95,6 +96,19 @@ public class BaptismController {
             return ResponseEntity.ok(serviceImp.sentBaptismSchedule(model));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("addBaptism")
+    public ResponseEntity<ApiResponseModel> addBaptism(@RequestBody AddBaptismRequestModel model){
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            res= serviceImp.addBaptism(model);
+            if(res.getStatusCode()==400){return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);}
+            return ResponseEntity.ok(res);
+
+        }catch (Exception e){
+            return new ResponseEntity<>(new ApiResponseModel("Failed to create baptism schedule. Please try again", 500, ""), HttpStatus.BAD_REQUEST);
         }
     }
 }

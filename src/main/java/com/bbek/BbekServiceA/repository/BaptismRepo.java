@@ -49,4 +49,5 @@ public interface BaptismRepo extends JpaRepository<BaptismEntity, Long> {
             "             LIMIT 10  \n" +
             "             OFFSET :numberOfRowsToSkip", nativeQuery = true)
     List<ModifiedBaptismEntity> paginatedBaptism(@Param("query") String query, @Param("numberOfRowsToSkip") int numberOfRowsToSkip);
+    BaptismEntity findByProfileId(Long id);
 }

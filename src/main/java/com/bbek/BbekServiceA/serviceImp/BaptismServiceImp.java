@@ -12,6 +12,7 @@ import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.RegistrationModel;
 import com.bbek.BbekServiceA.model.RegistrationRequestModel;
 import com.bbek.BbekServiceA.model.UserInfoModel;
+import com.bbek.BbekServiceA.model.baptism.AddBaptismRequestModel;
 import com.bbek.BbekServiceA.model.baptism.BaptismResponseModel;
 import com.bbek.BbekServiceA.model.baptism.BaptismScheduleModel;
 import com.bbek.BbekServiceA.model.user.UserAndIdModel;
@@ -325,6 +326,78 @@ public class BaptismServiceImp implements BaptismService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    @Transactional
+    public ApiResponseModel addBaptism(AddBaptismRequestModel model) {
+        ApiResponseModel res=new ApiResponseModel();
+        try{
+            UserAccountEntity uae = new UserAccountEntity();
+            UserProfileEntity upe = new UserProfileEntity();
+            BaptismEntity be = new BaptismEntity();
+
+            UserAccountEntity checkEntity = userRepo.findByUsername(model.getEmail());
+            if(checkEntity != null)return new ApiResponseModel("Email is already used.", 400, "");
+            LocalDateTime dateTime = LocalDateTime.now();
+            int year = dateTime.getYear();
+            int month = dateTime.getMonthValue();
+            int day = dateTime.getDayOfMonth();
+            //saving of account credentials
+            uae.setUsername(model.getEmail());
+            uae.setPassword(encoder.encode(model.getFirstname()+year+month+day));
+            UserAccountEntity savedUAE = userRepo.save(uae);
+            //saving of account profiles
+            upe.setFirstname(model.getFirstname());
+            upe.setMiddlename(model.getMiddlename());
+            upe.setLastname(model.getLastname());
+            upe.setAge(model.getAge());
+            upe.setGender(model.getSex());
+            upe.setAddress(model.getAddress());
+            upe.setEmail(model.getEmail());
+            upe.setContactNo(model.getContactNo());
+            upe.setBirthdate(model.getBirthdate());
+            upe.setRoleId(1L);
+            upe.setUserId(savedUAE.getId());
+            UserProfileEntity savedUPE = upRepo.save(upe);
+            //creating baptism schedule
+            be.setBaptismDate(model.getBaptismDate());
+            be.setBaptismOfficiant(model.getBaptismOfficiant());
+            be.setBaptismOfficiantId(model.getBaptismOfficiantId());
+            be.setLocation(model.getLocation());
+            be.setProfileId(savedUPE.getId());
+            be.setCertificateStatus(1L);
+            be.setStatusId(1L);
+            be.setLocation(model.getLocation());
+
+
+            bRepo.save(be);
+
+            String message = "Dear " + upe.getFirstname() + " " + upe.getLastname() + ",\n" +
+                    "\n" +
+                    "Thank you for showing interest in our church and taking this important step in your faith journey.\n" +
+                    "\n" +
+                    "We’re pleased to inform you that your baptism has been scheduled for " + model.getBaptismStringDate() + ".\n" +
+                    "\n" +
+                    "Please arrive at least 30 minutes before the ceremony for registration and orientation. Our team will be there to guide and assist you throughout the process.\n" +
+                    "\n" +
+                    "If you have any questions or need to make changes to your schedule, feel free to reply to this email or contact us at (046) 123-4567 /  info@bbekawit.org .\n" +
+                    "\n" +
+                    "We look forward to celebrating this special moment with you!\n" +
+                    "\n" +
+                    "Blessings,\n" +
+                    "BIBLE BAPTIST OF EKLESSIA\n" +
+                    "485 Acacia St. Villa Ramirez Tabon 1, Kawit Cavite";
+
+            emailSenderServiceImp.sendEmailMessage(model.getEmail(), message, "BAPTISM APPLICATION");
+            res.setStatusCode(200);
+            res.setMessage(SUCCESS);
+            return res;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 

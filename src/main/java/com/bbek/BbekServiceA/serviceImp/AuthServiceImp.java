@@ -1,9 +1,11 @@
 package com.bbek.BbekServiceA.serviceImp;
 
+import com.bbek.BbekServiceA.entities.BaptismEntity;
 import com.bbek.BbekServiceA.entities.UserAccountEntity;
 import com.bbek.BbekServiceA.entities.UserProfileEntity;
 import com.bbek.BbekServiceA.entities.reference.RoleEntity;
 import com.bbek.BbekServiceA.model.*;
+import com.bbek.BbekServiceA.repository.BaptismRepo;
 import com.bbek.BbekServiceA.repository.UserProfileRepo;
 import com.bbek.BbekServiceA.repository.UserRepo;
 import com.bbek.BbekServiceA.repository.reference.RoleRepo;
@@ -46,6 +48,9 @@ public class AuthServiceImp implements AuthService {
     @Autowired
     private BCryptPasswordEncoder encoder;
 
+    @Autowired
+    BaptismRepo bRepo;
+
 
 
 
@@ -56,14 +61,16 @@ public class AuthServiceImp implements AuthService {
             if(user == null)return new ApiResponseModel("Invalid username.", 404, "");
             ApiResponseModel res = new ApiResponseModel();
             if (!encoder.matches(password, user.getPassword())) {
-                res.setMessage(USER_NOT_FOUND);
+                res.setMessage("Invalid password. Please try again!");
                 res.setStatusCode(404);
                 return res;
             } else {
                 UserProfileEntity upe = profileRepo.findByUserId(user.getId());
                 Optional<RoleEntity> roleEntityOptional = roleRepo.findById(upe.getRoleId());
+                BaptismEntity be = bRepo.findByProfileId(upe.getId());
                 RoleEntity roleEntity = roleEntityOptional.orElse(null);
                 if (roleEntity == null) return new ApiResponseModel("Invalid role id!", 404, "");
+                if(be.getStatusId() == 9) return new ApiResponseModel("You haven't baptise yet.", 400, "");
                 if (roleEntity.getId() == 3) return new ApiResponseModel("Your account is for approval.", 403, "");
                 TokenModel tokenModel = new TokenModel();
                 tokenModel.setUsername(username);
