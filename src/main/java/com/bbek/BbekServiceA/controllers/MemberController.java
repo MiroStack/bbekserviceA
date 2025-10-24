@@ -2,6 +2,7 @@ package com.bbek.BbekServiceA.controllers;
 
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.OfferingModel;
+import com.bbek.BbekServiceA.model.baptism.AddBaptismRequestModel;
 import com.bbek.BbekServiceA.serviceImp.MemberServiceImp;
 import com.bbek.BbekServiceA.serviceImp.OfferingServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,19 @@ public class MemberController {
             return new ResponseEntity<>(serviceImp.getMemberPage(query, page), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("addMember")
+    public ResponseEntity<ApiResponseModel> addMember(@RequestBody AddBaptismRequestModel model){
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            res= serviceImp.addMember(model);
+            if(res.getStatusCode()==400){return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);}
+            return ResponseEntity.ok(res);
+
+        }catch (Exception e){
+            return new ResponseEntity<>(new ApiResponseModel("Failed to create account for member. Please try again", 500, ""), HttpStatus.BAD_REQUEST);
         }
     }
 
