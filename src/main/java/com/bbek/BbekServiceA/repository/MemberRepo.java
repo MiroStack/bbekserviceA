@@ -32,6 +32,7 @@ public interface MemberRepo extends JpaRepository<MemberEntity, Long> {
             " up.birthdate,\n" +
             " up.address,\n" +
             " up.email,\n" +
+            " up.gender, \n" +
             " up.contact_no,\n" +
             " up.emergency_contact_no,\n" +
             " up.emergency_contact_person,\n" +
@@ -46,6 +47,6 @@ public interface MemberRepo extends JpaRepository<MemberEntity, Long> {
             " FROM user_profile as up\n" +
             " LEFT JOIN baptism as ba  ON up.id = ba.profile_id\n" +
             " LEFT JOIN tbl_member as tm ON up.id = tm.profile_id\n" +
-            " WHERE up.id = :memberId;", nativeQuery = true)
+            " WHERE tm.id = :memberId;", nativeQuery = true)
     MemberDetailsEntity viewDetails(@Param("memberId") Long memberId);
 }

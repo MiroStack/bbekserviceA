@@ -33,6 +33,10 @@ public class MemberDetailsEntity {
     @Column(name="birthdate")
     private String birthdate;
 
+
+    @Column(name="gender")
+    private String gender;
+
     @Column(name="address")
     private String address;
 
