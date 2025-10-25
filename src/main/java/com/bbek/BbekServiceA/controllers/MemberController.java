@@ -39,4 +39,17 @@ public class MemberController {
         }
     }
 
+    @GetMapping("viewDetails/{memberId}")
+    public ResponseEntity<ApiResponseModel> viewDetails(@PathVariable("memberId") Long memberId){
+        ApiResponseModel res = serviceImp.viewDetails(memberId);
+        try{
+            if(res.getStatusCode() == 404)return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(res);
+
+        }catch (Exception e){
+            return new ResponseEntity<>(new ApiResponseModel("Something went wrong. Please try again!", 500, ""), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }

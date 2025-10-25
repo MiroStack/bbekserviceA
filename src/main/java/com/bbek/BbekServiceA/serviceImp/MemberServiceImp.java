@@ -1,8 +1,6 @@
 package com.bbek.BbekServiceA.serviceImp;
 
-import com.bbek.BbekServiceA.entities.BaptismEntity;
-import com.bbek.BbekServiceA.entities.UserAccountEntity;
-import com.bbek.BbekServiceA.entities.UserProfileEntity;
+import com.bbek.BbekServiceA.entities.*;
 import com.bbek.BbekServiceA.entities.modified.member.ModifiedMemberEntity;
 import com.bbek.BbekServiceA.entities.reference.StatusEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
@@ -21,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -95,6 +94,7 @@ public class MemberServiceImp implements MemberService {
             UserAccountEntity uae = new UserAccountEntity();
             UserProfileEntity upe = new UserProfileEntity();
             BaptismEntity be = new BaptismEntity();
+            MemberEntity me = new MemberEntity();
 
             UserAccountEntity checkEntity = userRepo.findByUsername(model.getEmail());
             if(checkEntity != null)return new ApiResponseModel("Email is already used.", 400, "");
@@ -127,11 +127,18 @@ public class MemberServiceImp implements MemberService {
             be.setLocation(model.getLocation());
             be.setProfileId(savedUPE.getId());
             be.setCertificateStatus(2L);
+            be.setCreatedDate(LocalDate.now());
             be.setStatusId(8L);
             be.setLocation(model.getLocation());
-
-
             bRepo.save(be);
+
+            //add to member table
+            me.setMemberName(savedUPE.getFirstname()+" "+savedUPE.getMiddlename()+" "+savedUPE.getLastname());
+            me.setActive(true);
+            me.setStatusId(8L);
+            me.setJoinDate(year+"-"+month+"-"+day);
+            me.setProfileId(savedUPE.getId());
+            memberRepo.save(me);
 
             String message = "Dear "+upe.getFirstname() +" "+upe.getLastname()+" ,\n" +
                     "\n" +
@@ -160,4 +167,21 @@ public class MemberServiceImp implements MemberService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public ApiResponseModel viewDetails(Long memberId) {
+        ApiResponseModel res= new ApiResponseModel();
+        try{
+            MemberDetailsEntity entity = memberRepo.viewDetails(memberId);
+            if(entity == null){return new ApiResponseModel("Details not found", 404, "");}
+            res.setStatusCode(200);
+            res.setData(entity);
+            res.setMessage(SUCCESS);
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }

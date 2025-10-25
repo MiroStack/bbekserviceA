@@ -21,7 +21,7 @@ public class UserProfileEntity {
     private int age;
     @Column(name = "birthdate")
     private String birthdate;
-    @Column(name="address")
+    @Column(name = "address")
     private String address;
     @Column(name = "user_id")
     private Long userId;
@@ -33,14 +33,23 @@ public class UserProfileEntity {
     private String contactNo;
     @Column(name = "emergency_contact_person")
     private String emergencyContactPerson;
-    @Column(name="emergency_contact_no")
+    @Column(name = "emergency_contact_no")
     private String emergencyContactNo;
     @Column(name = "gender")
     private String gender;
-    @Column(name="profile_image")
+    @Column(name = "profile_image")
     private String profileImage;
     @Column(name = "role_id")
     private Long roleId;
     @Column(name = "image_uuid")
     private String imageUUID;
+
+    @Column(name = "relationship_to_contact_person")
+    private String relationshipToContactPerson;
+
+    @Column(name = "department_id")
+    private String departmentId;
+
+    @Column(name = "position_id")
+    private String positionId;
 }
