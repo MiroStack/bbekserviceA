@@ -49,4 +49,6 @@ public interface MemberRepo extends JpaRepository<MemberEntity, Long> {
             " LEFT JOIN tbl_member as tm ON up.id = tm.profile_id\n" +
             " WHERE tm.id = :memberId;", nativeQuery = true)
     MemberDetailsEntity viewDetails(@Param("memberId") Long memberId);
+
+    MemberEntity findByProfileId(Long id);
 }

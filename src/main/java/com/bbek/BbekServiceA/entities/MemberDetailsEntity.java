@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -56,10 +57,10 @@ public class MemberDetailsEntity {
     private String relationshipToContactPerson;
 
     @Column(name = "department_id")
-    private String departmentId;
+    private Long departmentId;
 
     @Column(name="position_id")
-    private String positionId;
+    private Long positionId;
 
     @Column(name="baptism_officiant")
     private String baptismOfficiant;
@@ -68,7 +69,7 @@ public class MemberDetailsEntity {
     private Long baptismOfficiantId;
 
     @Column(name="baptism_dt")
-    private LocalDate baptismDate;
+    private LocalDateTime baptismDate;
 
     @Column(name="is_active")
     private boolean isActive;

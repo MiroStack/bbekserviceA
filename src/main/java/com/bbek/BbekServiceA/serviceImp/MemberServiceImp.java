@@ -2,6 +2,8 @@ package com.bbek.BbekServiceA.serviceImp;
 
 import com.bbek.BbekServiceA.entities.*;
 import com.bbek.BbekServiceA.entities.modified.member.ModifiedMemberEntity;
+import com.bbek.BbekServiceA.entities.reference.DepartmentEntity;
+import com.bbek.BbekServiceA.entities.reference.PositionEntity;
 import com.bbek.BbekServiceA.entities.reference.StatusEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.baptism.AddBaptismRequestModel;
@@ -10,9 +12,7 @@ import com.bbek.BbekServiceA.repository.BaptismRepo;
 import com.bbek.BbekServiceA.repository.MemberRepo;
 import com.bbek.BbekServiceA.repository.UserProfileRepo;
 import com.bbek.BbekServiceA.repository.UserRepo;
-import com.bbek.BbekServiceA.repository.reference.CertificateStatusRepo;
-import com.bbek.BbekServiceA.repository.reference.RoleRepo;
-import com.bbek.BbekServiceA.repository.reference.StatusRepo;
+import com.bbek.BbekServiceA.repository.reference.*;
 import com.bbek.BbekServiceA.service.MemberService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
+import static com.bbek.BbekServiceA.util.Constant.USER_NOT_FOUND;
 
 @Service
 public class MemberServiceImp implements MemberService {
@@ -50,6 +51,10 @@ public class MemberServiceImp implements MemberService {
     EmailSenderServiceImp emailSenderServiceImp;
     @Autowired
     StatusRepo statusRepo;
+    @Autowired
+    PositionRepo positionRepo;
+    @Autowired
+    DepartmentRepo departmentRepo;
 
     @Override
     public ApiResponseModel getMemberPage(String query, int page) {
@@ -181,6 +186,103 @@ public class MemberServiceImp implements MemberService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public ApiResponseModel getDepartmentList() {
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            List<DepartmentEntity> list = departmentRepo.findAll();
+            res.setData(list);
+            res.setStatusCode(200);
+            res.setMessage(SUCCESS);
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ApiResponseModel getPositionList() {
+        ApiResponseModel res = new ApiResponseModel();
+        try{
+            List<PositionEntity> list = positionRepo.findAll();
+            res.setData(list);
+            res.setStatusCode(200);
+            res.setMessage(SUCCESS);
+            return res;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ApiResponseModel editMemberDetails(MemberDetailsEntity entity) {
+        ApiResponseModel res= new ApiResponseModel();
+        try{
+            UserAccountEntity uae = new UserAccountEntity();
+            UserProfileEntity upe = new UserProfileEntity();
+            BaptismEntity be= new BaptismEntity();
+            MemberEntity me = new MemberEntity();
+
+            // saving profile
+            Optional<UserProfileEntity> upo = upRepo.findById(entity.getId());
+            upe = upo.orElse(null);
+            if(upe == null) return new ApiResponseModel(USER_NOT_FOUND, 404, "");
+            upe.setFirstname(entity.getFirstname());
+            upe.setMiddlename(entity.getMiddlename());
+            upe.setLastname(entity.getLastname());
+            upe.setAge(entity.getAge());
+            upe.setBirthdate(entity.getBirthdate());
+            upe.setAddress(entity.getAddress());
+            upe.setGender(entity.getGender());
+            upe.setEmail(entity.getEmail());
+            upe.setContactNo(entity.getContactNo());
+            if (entity.getPositionId() == 12L) {
+                upe.setRoleId(6L);
+            }else if(entity.getPositionId() == 10 || entity.getPositionId() == 11){ upe.setRoleId(7L);}
+            else if(entity.getPositionId() == 13){
+                upe.setRoleId(2L);
+            }else{
+                upe.setRoleId(1L);
+            }
+            upe.setEmergencyContactNo(entity.getEmergencyContactNo());
+            upe.setEmergencyContactPerson(entity.getEmergencyContactPerson());
+            upe.setRelationshipToContactPerson(entity.getRelationshipToContactPerson());
+            upe.setDepartmentId(entity.getDepartmentId());
+            upe.setPositionId(entity.getPositionId());
+            UserProfileEntity savedUAE = upRepo.save(upe);
+
+            //saving account
+            Optional<UserAccountEntity> uao = userRepo.findById(savedUAE.getUserId());
+            uae = uao.orElse(null);
+            if(uae == null) return new ApiResponseModel(USER_NOT_FOUND, 404, "");
+            uae.setUsername(entity.getEmail());
+            userRepo.save(uae);
+
+            //saving baptism
+            be = bRepo.findByProfileId(savedUAE.getId());
+            be.setBaptismOfficiant(entity.getBaptismOfficiant());
+            be.setBaptismOfficiantId(entity.getBaptismOfficiantId());
+            be.setBaptismDate(entity.getBaptismDate());
+            bRepo.save(be);
+
+            //saving member flags
+            me = memberRepo.findByProfileId(savedUAE.getId());
+            me.setJoinDate(String.valueOf(entity.getJoinDate()));
+            me.setActive(entity.isActive());
+            me.setMemberName(savedUAE.getFirstname() +" "+savedUAE.getMiddlename()+" "+savedUAE.getLastname());
+            memberRepo.save(me);
+
+            res.setMessage("Member details updated successfully.");
+            res.setStatusCode(200);
+            return res;
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 

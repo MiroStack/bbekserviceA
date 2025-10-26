@@ -48,8 +48,8 @@ public class UserProfileEntity {
     private String relationshipToContactPerson;
 
     @Column(name = "department_id")
-    private String departmentId;
+    private Long departmentId;
 
     @Column(name = "position_id")
-    private String positionId;
+    private Long positionId;
 }
