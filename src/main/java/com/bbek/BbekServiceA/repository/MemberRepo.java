@@ -51,4 +51,6 @@ public interface MemberRepo extends JpaRepository<MemberEntity, Long> {
     MemberDetailsEntity viewDetails(@Param("memberId") Long memberId);
 
     MemberEntity findByProfileId(Long id);
+
+
 }

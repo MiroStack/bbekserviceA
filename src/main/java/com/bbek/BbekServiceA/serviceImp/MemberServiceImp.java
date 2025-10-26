@@ -285,5 +285,29 @@ public class MemberServiceImp implements MemberService {
 
     }
 
+    @Override
+    public ApiResponseModel fetchDepartmentsMembers() {
+        ApiResponseModel res = new ApiResponseModel();
+
+        try{
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    @Override
+    public ApiResponseModel fetchPriestMembers() {
+        ApiResponseModel res = new ApiResponseModel();
+
+        try{
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
 
 }
