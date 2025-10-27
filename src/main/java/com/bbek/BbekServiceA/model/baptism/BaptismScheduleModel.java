@@ -1,5 +1,6 @@
 package com.bbek.BbekServiceA.model.baptism;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ public class BaptismScheduleModel {
     private Long id;
     private Long certificationId;
     private Long baptismStatusId;
-    private LocalDateTime baptismDate;
+    private String baptismDate;
     private String location;
     private Long baptismOfficiantId;
     private String baptismOfficiant;

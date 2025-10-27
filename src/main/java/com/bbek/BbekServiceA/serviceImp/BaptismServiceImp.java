@@ -89,6 +89,8 @@ public class BaptismServiceImp implements BaptismService {
             upe.setCreatedDate(LocalDate.now().toString());
             upe.setContactNo(rModel.getContactNo());
             upe.setGender(rModel.getGender());
+            upe.setPositionId(14L);
+            upe.setDepartmentId(4L);
             upe.setRoleId(3L);
 
             UserProfileEntity savedUpe = upRepo.save(upe);
@@ -213,6 +215,7 @@ public class BaptismServiceImp implements BaptismService {
     }
 
     @Override
+    @Transactional
     public ApiResponseModel sentBaptismSchedule(BaptismScheduleModel model) {
         try {
             ApiResponseModel res = new ApiResponseModel();
@@ -222,7 +225,7 @@ public class BaptismServiceImp implements BaptismService {
             UserProfileEntity upe = upo.orElse(null);
             Optional<UserAccountEntity> uao = userRepo.findById(upe.getUserId());
             UserAccountEntity uae = uao.orElse(null);
-            MemberEntity me = new MemberEntity();
+            MemberEntity me;
             LocalDateTime date = LocalDateTime.now();
             int year = date.getYear();
             int month = date.getMonthValue();
@@ -250,11 +253,15 @@ public class BaptismServiceImp implements BaptismService {
                         "485 Acacia St. Villa Ramirez Tabon 1, Kawit Cavite";
 
                 emailSenderServiceImp.sendEmailMessage(model.getEmail(), message, "BAPTISM APPLICATION");
-                upe.setRoleId(1L);
-                upRepo.save(upe);
+                UserProfileEntity savedUPE = upRepo.save(upe);
+                me = mRepo.findByProfileId(savedUPE.getId());
+                if(me != null) {
+                    throw new RuntimeException("This account is already approved.");
+                }
+                me = new MemberEntity();
                 bae.setStatusId(model.getBaptismStatusId());
                 bae.setCertificateStatus(model.getCertificationId());
-                bae.setBaptismDate(model.getBaptismDate());
+                bae.setBaptismDate(LocalDateTime.parse(model.getBaptismDate()));
                 bae.setBaptismOfficiant(model.getBaptismOfficiant());
                 bae.setBaptismOfficiantId(model.getBaptismOfficiantId());
                 bae.setLocation(model.getLocation());
@@ -270,6 +277,10 @@ public class BaptismServiceImp implements BaptismService {
                 return res;
 
             } else if(model.getBaptismStatusId() == 1) {
+                upe.setRoleId(1L);
+                upe.setPositionId(14L);
+                upe.setDepartmentId(4L);
+                upRepo.save(upe);
                 String message = "Dear " + upe.getFirstname() + " " + upe.getLastname() + ",\n" +
                         "\n" +
                         "Thank you for showing interest in our church and taking this important step in your faith journey.\n" +
@@ -290,7 +301,7 @@ public class BaptismServiceImp implements BaptismService {
 
                 bae.setStatusId(model.getBaptismStatusId());
                 bae.setCertificateStatus(model.getCertificationId());
-                bae.setBaptismDate(model.getBaptismDate());
+                bae.setBaptismDate(LocalDateTime.parse(model.getBaptismDate()));
                 bae.setBaptismOfficiant(model.getBaptismOfficiant());
                 bae.setBaptismOfficiantId(model.getBaptismOfficiantId());
                 bae.setLocation(model.getLocation());
@@ -358,6 +369,8 @@ public class BaptismServiceImp implements BaptismService {
             upe.setContactNo(model.getContactNo());
             upe.setBirthdate(model.getBirthdate());
             upe.setRoleId(1L);
+            upe.setPositionId(14L);
+            upe.setDepartmentId(4L);
             upe.setUserId(savedUAE.getId());
             UserProfileEntity savedUPE = upRepo.save(upe);
             //creating baptism schedule

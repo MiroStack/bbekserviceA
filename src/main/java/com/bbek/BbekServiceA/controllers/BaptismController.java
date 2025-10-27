@@ -94,8 +94,8 @@ public class BaptismController {
     public ResponseEntity<ApiResponseModel> scheduleBaptism(@RequestBody BaptismScheduleModel model){
         try {
             return ResponseEntity.ok(serviceImp.sentBaptismSchedule(model));
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(new ApiResponseModel(e.getMessage(), 500, ""),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

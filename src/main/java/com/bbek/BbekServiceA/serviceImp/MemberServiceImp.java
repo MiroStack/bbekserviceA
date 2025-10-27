@@ -123,6 +123,8 @@ public class MemberServiceImp implements MemberService {
             upe.setContactNo(model.getContactNo());
             upe.setBirthdate(model.getBirthdate());
             upe.setRoleId(1L);
+            upe.setPositionId(14L);
+            upe.setDepartmentId(4L);
             upe.setUserId(savedUAE.getId());
             UserProfileEntity savedUPE = upRepo.save(upe);
             //creating baptism schedule
