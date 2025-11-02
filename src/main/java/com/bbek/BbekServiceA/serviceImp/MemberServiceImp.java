@@ -2,6 +2,7 @@ package com.bbek.BbekServiceA.serviceImp;
 
 import com.bbek.BbekServiceA.entities.*;
 import com.bbek.BbekServiceA.entities.modified.member.ModifiedMemberEntity;
+import com.bbek.BbekServiceA.entities.modified.user_profile.ModifiedUserProfile;
 import com.bbek.BbekServiceA.entities.reference.DepartmentEntity;
 import com.bbek.BbekServiceA.entities.reference.PositionEntity;
 import com.bbek.BbekServiceA.entities.reference.StatusEntity;
@@ -15,6 +16,7 @@ import com.bbek.BbekServiceA.repository.UserRepo;
 import com.bbek.BbekServiceA.repository.reference.*;
 import com.bbek.BbekServiceA.service.MemberService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import java.util.Optional;
 import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
 import static com.bbek.BbekServiceA.util.Constant.USER_NOT_FOUND;
 
+@Slf4j
 @Service
 public class MemberServiceImp implements MemberService {
     @Autowired
@@ -94,20 +97,20 @@ public class MemberServiceImp implements MemberService {
     @Override
     @Transactional
     public ApiResponseModel addMember(AddBaptismRequestModel model) {
-        ApiResponseModel res=new ApiResponseModel();
-        try{
+        ApiResponseModel res = new ApiResponseModel();
+        try {
             UserAccountEntity uae = new UserAccountEntity();
             UserProfileEntity upe = new UserProfileEntity();
             BaptismEntity be = new BaptismEntity();
             MemberEntity me = new MemberEntity();
 
             UserAccountEntity checkEntity = userRepo.findByUsername(model.getEmail());
-            if(checkEntity != null)return new ApiResponseModel("Email is already used.", 400, "");
+            if (checkEntity != null) return new ApiResponseModel("Email is already used.", 400, "");
             LocalDateTime dateTime = LocalDateTime.now();
             int year = dateTime.getYear();
             int month = dateTime.getMonthValue();
             int day = dateTime.getDayOfMonth();
-            String password = model.getFirstname()+year+month+day;
+            String password = model.getFirstname() + year + month + day;
             //saving of account credentials
             uae.setUsername(model.getEmail());
             uae.setPassword(encoder.encode(password));
@@ -140,21 +143,21 @@ public class MemberServiceImp implements MemberService {
             bRepo.save(be);
 
             //add to member table
-            me.setMemberName(savedUPE.getFirstname()+" "+savedUPE.getMiddlename()+" "+savedUPE.getLastname());
+            me.setMemberName(savedUPE.getFirstname() + " " + savedUPE.getMiddlename() + " " + savedUPE.getLastname());
             me.setActive(true);
             me.setStatusId(8L);
-            me.setJoinDate(year+"-"+month+"-"+day);
+            me.setJoinDate(year + "-" + month + "-" + day);
             me.setProfileId(savedUPE.getId());
             memberRepo.save(me);
 
-            String message = "Dear "+upe.getFirstname() +" "+upe.getLastname()+" ,\n" +
+            String message = "Dear " + upe.getFirstname() + " " + upe.getLastname() + " ,\n" +
                     "\n" +
                     "We are overjoyed to welcome you as an official member of Bible Baptist of Eklessia! Your decision to become part of our community is truly a blessing, and we thank God for guiding you to our family of faith.\n" +
                     "\n" +
                     "As a member, you are now part of a loving and supportive community that seeks to grow together in faith, serve others with compassion, and share the message of God’s love. We encourage you to join our worship services, ministry activities, and fellowship gatherings, where you can deepen your connection with God and with your fellow believers.\n" +
                     "We also generate an account for you so that you can login in our website and view upcoming events or become part of our ministries activities. \n" +
-                    "Username: "+uae.getUsername()+"\n"+
-                    "Password: "+password+"\n"+
+                    "Username: " + uae.getUsername() + "\n" +
+                    "Password: " + password + "\n" +
                     "If you have any questions or would like to get involved in our ministries, please don’t hesitate to reach out to us. We look forward to walking alongside you in your spiritual journey.\n" +
                     "\n" +
                     "Once again, welcome to the family — we’re so glad you’re here!\n" +
@@ -162,7 +165,7 @@ public class MemberServiceImp implements MemberService {
                     "With blessings and joy,\n" +
                     "Staff Admin\n" +
                     "BIBLE BAPTIST OF EKLESSIA\n" +
-                    "(046) 123-4567 /  info@bbekawit.org\n"+
+                    "(046) 123-4567 /  info@bbekawit.org\n" +
                     "485 Acacia St. Villa Ramirez Tabon 1, Kawit Cavite";
 
             emailSenderServiceImp.sendEmailMessage(model.getEmail(), message, "BAPTISM APPLICATION");
@@ -177,10 +180,12 @@ public class MemberServiceImp implements MemberService {
 
     @Override
     public ApiResponseModel viewDetails(Long memberId) {
-        ApiResponseModel res= new ApiResponseModel();
-        try{
+        ApiResponseModel res = new ApiResponseModel();
+        try {
             MemberDetailsEntity entity = memberRepo.viewDetails(memberId);
-            if(entity == null){return new ApiResponseModel("Details not found", 404, "");}
+            if (entity == null) {
+                return new ApiResponseModel("Details not found", 404, "");
+            }
             res.setStatusCode(200);
             res.setData(entity);
             res.setMessage(SUCCESS);
@@ -193,7 +198,7 @@ public class MemberServiceImp implements MemberService {
     @Override
     public ApiResponseModel getDepartmentList() {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             List<DepartmentEntity> list = departmentRepo.findAll();
             res.setData(list);
             res.setStatusCode(200);
@@ -207,7 +212,7 @@ public class MemberServiceImp implements MemberService {
     @Override
     public ApiResponseModel getPositionList() {
         ApiResponseModel res = new ApiResponseModel();
-        try{
+        try {
             List<PositionEntity> list = positionRepo.findAll();
             res.setData(list);
             res.setStatusCode(200);
@@ -220,17 +225,17 @@ public class MemberServiceImp implements MemberService {
 
     @Override
     public ApiResponseModel editMemberDetails(MemberDetailsEntity entity) {
-        ApiResponseModel res= new ApiResponseModel();
-        try{
+        ApiResponseModel res = new ApiResponseModel();
+        try {
             UserAccountEntity uae = new UserAccountEntity();
             UserProfileEntity upe = new UserProfileEntity();
-            BaptismEntity be= new BaptismEntity();
+            BaptismEntity be = new BaptismEntity();
             MemberEntity me = new MemberEntity();
 
             // saving profile
             Optional<UserProfileEntity> upo = upRepo.findById(entity.getId());
             upe = upo.orElse(null);
-            if(upe == null) return new ApiResponseModel(USER_NOT_FOUND, 404, "");
+            if (upe == null) return new ApiResponseModel(USER_NOT_FOUND, 404, "");
             upe.setFirstname(entity.getFirstname());
             upe.setMiddlename(entity.getMiddlename());
             upe.setLastname(entity.getLastname());
@@ -242,10 +247,11 @@ public class MemberServiceImp implements MemberService {
             upe.setContactNo(entity.getContactNo());
             if (entity.getPositionId() == 12L) {
                 upe.setRoleId(6L);
-            }else if(entity.getPositionId() == 10 || entity.getPositionId() == 11){ upe.setRoleId(7L);}
-            else if(entity.getPositionId() == 13){
+            } else if (entity.getPositionId() == 10 || entity.getPositionId() == 11) {
+                upe.setRoleId(7L);
+            } else if (entity.getPositionId() == 13) {
                 upe.setRoleId(2L);
-            }else{
+            } else {
                 upe.setRoleId(1L);
             }
             upe.setEmergencyContactNo(entity.getEmergencyContactNo());
@@ -258,7 +264,7 @@ public class MemberServiceImp implements MemberService {
             //saving account
             Optional<UserAccountEntity> uao = userRepo.findById(savedUAE.getUserId());
             uae = uao.orElse(null);
-            if(uae == null) return new ApiResponseModel(USER_NOT_FOUND, 404, "");
+            if (uae == null) return new ApiResponseModel(USER_NOT_FOUND, 404, "");
             uae.setUsername(entity.getEmail());
             userRepo.save(uae);
 
@@ -273,7 +279,7 @@ public class MemberServiceImp implements MemberService {
             me = memberRepo.findByProfileId(savedUAE.getId());
             me.setJoinDate(String.valueOf(entity.getJoinDate()));
             me.setActive(entity.isActive());
-            me.setMemberName(savedUAE.getFirstname() +" "+savedUAE.getMiddlename()+" "+savedUAE.getLastname());
+            me.setMemberName(savedUAE.getFirstname() + " " + savedUAE.getMiddlename() + " " + savedUAE.getLastname());
             memberRepo.save(me);
 
             res.setMessage("Member details updated successfully.");
@@ -288,10 +294,10 @@ public class MemberServiceImp implements MemberService {
     }
 
     @Override
-    public ApiResponseModel fetchDepartmentsMembers() {
+    public ApiResponseModel fetchDepartmentsMembers(String query, int page) {
         ApiResponseModel res = new ApiResponseModel();
 
-        try{
+        try {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -300,15 +306,25 @@ public class MemberServiceImp implements MemberService {
     }
 
     @Override
-    public ApiResponseModel fetchPriestMembers() {
+    public ApiResponseModel fetchPriestMembers(String query, int page) {
+
         ApiResponseModel res = new ApiResponseModel();
 
-        try{
+        try {
+            String queryFormatted = "%" + query + "%";
+            int numberOfRowsToSkip = page == 1 ? 0 : (page - 1) * 10;
+            List<ModifiedUserProfile>  list = upRepo.findPriestMembers(queryFormatted, numberOfRowsToSkip);
+            if(list == null) return new ApiResponseModel("Failed to fetch list of members. Please try again.", 500, null);
+            res.setStatusCode(200);
+            res.setData(list);
+            res.setMessage(SUCCESS);
+            return res;
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Message", e);
+            return new ApiResponseModel("Failed to fetch list of members. Please try again.", 500, null);
         }
-        return null;
+
     }
 
 

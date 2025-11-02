@@ -17,7 +17,7 @@ public interface MemberService {
 
     ApiResponseModel editMemberDetails(MemberDetailsEntity entity);
 
-    ApiResponseModel fetchDepartmentsMembers();
+    ApiResponseModel fetchDepartmentsMembers(String query, int page);
 
-    ApiResponseModel fetchPriestMembers();
+    ApiResponseModel fetchPriestMembers(String query, int page);
 }
