@@ -298,11 +298,19 @@ public class MemberServiceImp implements MemberService {
         ApiResponseModel res = new ApiResponseModel();
 
         try {
+            String queryFormatted = "%" + query + "%";
+            int numberOfRowsToSkip = page == 1 ? 0 : (page - 1) * 10;
+            List<ModifiedUserProfile>  list = upRepo.findDepartmentsMembers(queryFormatted, numberOfRowsToSkip);
+            if(list == null) return new ApiResponseModel("Failed to fetch list of members. Please try again.", 500, null);
+            res.setStatusCode(200);
+            res.setData(list);
+            res.setMessage(SUCCESS);
+            return res;
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Message", e);
+            return new ApiResponseModel("Failed to fetch list of members. Please try again.", 500, null);
         }
-        return null;
     }
 
     @Override

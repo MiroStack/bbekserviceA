@@ -96,5 +96,16 @@ public class MemberController {
         }
     }
 
+    @GetMapping("ListOfDepartmentMember")
+    public ResponseEntity<ApiResponseModel> listOfDepartmentMember(@RequestParam(value = "query", defaultValue = "") String query, @RequestParam(value = "page", defaultValue = "1") int page){
+        try{
+            ApiResponseModel res = serviceImp.fetchDepartmentsMembers(query, page);
+            if(res.getStatusCode() != 200) return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ApiResponseModel("Something went wrong. Please try again", 500, null), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }
