@@ -212,20 +212,15 @@ public class MinistryServiceImp implements MinistryService {
         try {
             List<MinistryEntity> entities = mRepo.findUpcomingMinistry();
             List<MinistryModel> ministryModelList = entities.stream().map(m -> {
-                Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(m.getStatusId());
-                Optional<DepartmentEntity> deo = dRepo.findById(m.getDepartmentId());
-                DepartmentEntity de = deo.orElse(null);
-
-                MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
 
                 return new MinistryModel(
                         m.getId(),
                         m.getSchedule(),
                         m.getLeader(),
-                        ministryStatusRfEntity.getStatusName(),
+                        "",
                         m.getMinistryName(),
                         m.getDescription(),
-                        de.getDepartmentName(),
+                        "",
                         m.getMember(),
                         m.getCreatedDate(),
                         m.getUpdatedDate(),
