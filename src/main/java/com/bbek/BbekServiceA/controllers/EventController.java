@@ -1,9 +1,12 @@
 package com.bbek.BbekServiceA.controllers;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
+import com.bbek.BbekServiceA.entities.pivot.EventPivotEntity;
+import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.event.EventModel;
 import com.bbek.BbekServiceA.serviceImp.EventServiceImp;
+import com.bbek.BbekServiceA.util.ResponseHelper;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +31,10 @@ import static com.bbek.BbekServiceA.util.Constant.BBEK;
 public class EventController {
     @Autowired
     EventServiceImp eService;
+
+    @Autowired
+    ResponseHelper helper;
+
     @PostMapping(value = "/saveEvent", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseModel> saveMinistry(
             @RequestParam("id") long id,
@@ -145,6 +152,17 @@ public class EventController {
                     .badRequest()
                     .build();
         }
+    }
+    @GetMapping("joinEvent")
+    public ResponseEntity<ApiResponseModel> joinEvent(@RequestBody EventPivotEntity entity) {
+        ApiResponseModel res = eService.joinEvent(entity);
+        return helper.response(res);
+    }
+
+    @GetMapping("leaveEvent/{id}")
+    public ResponseEntity<ApiResponseModel> leaveEvent(@PathVariable("id") Long id) {
+        ApiResponseModel res = eService.leaveEvent(id);
+        return helper.response(res);
     }
 
 }

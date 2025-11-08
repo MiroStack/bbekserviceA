@@ -1,6 +1,7 @@
 package com.bbek.BbekServiceA.service;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
+import com.bbek.BbekServiceA.entities.pivot.EventPivotEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.event.EventModel;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,5 +36,7 @@ public interface EventService {
     ApiResponseModel getUpcomingEvent();
     ApiResponseModel getPaginatedEvents(String query, int numberOfRowsToSkip, String status);
     ApiResponseModel getAllEventStatuses();
+    ApiResponseModel joinEvent(EventPivotEntity entity);
+    ApiResponseModel leaveEvent(Long id);
 
 }

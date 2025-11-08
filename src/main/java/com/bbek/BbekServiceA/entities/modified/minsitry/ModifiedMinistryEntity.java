@@ -57,5 +57,8 @@ public class ModifiedMinistryEntity {
     @Column(name = "total_rows")
     private int totalRows;
 
+    @Column(name = "department_name")
+    private String departmentName;
+
 
 }

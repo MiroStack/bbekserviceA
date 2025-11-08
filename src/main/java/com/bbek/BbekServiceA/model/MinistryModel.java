@@ -23,6 +23,7 @@ public class MinistryModel {
     private String ministryName;
 
     private String description;
+    private String department;
 
     private int member;
 
@@ -38,13 +39,16 @@ public class MinistryModel {
 
     private int totalRows;
 
-    public MinistryModel(long id, String schedule, String leader, String statusName, String ministryName, String description, int member, LocalDateTime createdDate, LocalDateTime updatedDate, LocalTime startTime, LocalTime endTime, int totalRows) {
+
+
+    public MinistryModel(long id, String schedule, String leader, String statusName, String ministryName, String description, String department, int member, LocalDateTime createdDate, LocalDateTime updatedDate, LocalTime startTime, LocalTime endTime, int totalRows) {
         this.id = id;
         this.schedule = schedule;
         this.leader = leader;
         this.statusName = statusName;
         this.ministryName = ministryName;
         this.description = description;
+        this.department = department;
         this.member = member;
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;

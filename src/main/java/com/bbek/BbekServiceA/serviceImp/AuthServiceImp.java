@@ -1,11 +1,13 @@
 package com.bbek.BbekServiceA.serviceImp;
 
 import com.bbek.BbekServiceA.entities.BaptismEntity;
+import com.bbek.BbekServiceA.entities.MemberEntity;
 import com.bbek.BbekServiceA.entities.UserAccountEntity;
 import com.bbek.BbekServiceA.entities.UserProfileEntity;
 import com.bbek.BbekServiceA.entities.reference.RoleEntity;
 import com.bbek.BbekServiceA.model.*;
 import com.bbek.BbekServiceA.repository.BaptismRepo;
+import com.bbek.BbekServiceA.repository.MemberRepo;
 import com.bbek.BbekServiceA.repository.UserProfileRepo;
 import com.bbek.BbekServiceA.repository.UserRepo;
 import com.bbek.BbekServiceA.repository.reference.RoleRepo;
@@ -51,6 +53,9 @@ public class AuthServiceImp implements AuthService {
     @Autowired
     BaptismRepo bRepo;
 
+    @Autowired
+    MemberRepo memberRepo;
+
 
 
 
@@ -74,6 +79,8 @@ public class AuthServiceImp implements AuthService {
                 if (roleEntity.getId() == 3) return new ApiResponseModel("Your account is for approval.", 403, "");
                 TokenModel tokenModel = new TokenModel();
                 tokenModel.setUsername(username);
+                MemberEntity me = memberRepo.findByProfileId(upe.getId());
+                tokenModel.setMemberId(me.getId());
                 String token = verify(tokenModel, password);
                 LoginResponseModel model = new LoginResponseModel();
                 model.setToken(token);
@@ -96,14 +103,8 @@ public class AuthServiceImp implements AuthService {
     @Override
     public ApiResponseModel getUserInfo(String token) {
         ApiResponseModel res = new ApiResponseModel();
-        Claims claims = jwtService.extractUserClaims(token);
-        if (claims == null) {
-            res.setStatusCode(401);
-            res.setMessage("Invalid Token!");
-            return res;
-        }
-        String username = claims.get("username", String.class);
-        UserAccountEntity entity = userRepo.findByUsername(username);
+        TokenModel tokenModel = getTokenModel(token);
+        UserAccountEntity entity = userRepo.findByUsername(tokenModel.getUsername());
         UserProfileEntity upe = profileRepo.findByUserId(entity.getId());
         if(upe == null) return new ApiResponseModel("No User information found.",404,"");
         Optional<RoleEntity> rep= roleRepo.findById(upe.getRoleId());
@@ -129,6 +130,17 @@ public class AuthServiceImp implements AuthService {
         res.setStatusCode(200);
         res.setMessage(SUCCESS);
         return res;
+    }
+
+    @Override
+    public TokenModel getTokenModel(String token) {
+        Claims claims = jwtService.extractUserClaims(token);
+        if (claims == null) {
+            return null;
+        }
+        String username = claims.get("username", String.class);
+        Long memberId = claims.get("memberId", Long.class);
+        return new TokenModel(username, memberId);
     }
 
     //    @Override

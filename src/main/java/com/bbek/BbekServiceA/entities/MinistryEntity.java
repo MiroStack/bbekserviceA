@@ -54,5 +54,8 @@ public class MinistryEntity {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
+    @Column(name = "department_id")
+    private Long departmentId;
+
 
 }

@@ -43,7 +43,23 @@ public class SecurityConfig {
         return http
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/bbek/validate/**", "/bbek/register/**", "/bbek/login/**", "/bbek/getAllMinistry/**", "/bbek/filename/**","/bbek/ministry_image/**","/bbek/event_image/**", "/bbek/getAllEvent/**", "/bbek/upcomingEvents", "/bbek/getUpcomingMinistry", "bbek/submitBaptism/**", "/bbek/submit_donation/**", "/bbek/sendEmailMessage/**")
+                        .requestMatchers("/bbek/validate/**",
+                                "/bbek/register/**", "/bbek/login/**",
+                                "/bbek/getAllMinistry/**",
+                                "/bbek/filename/**",
+                                "/bbek/ministry_image/**",
+                                "/bbek/event_image/**",
+                                "/bbek/getAllEvent/**",
+                                "/bbek/upcomingEvents",
+                                "/bbek/getUpcomingMinistry",
+                                "bbek/submitBaptism/**",
+                                "/bbek/submit_donation/**",
+                                "/bbek/sendEmailMessage/**",
+                                "/bbek/departments/**",
+                                "/bbek/positions/**.",
+                                "/bbek/ministriesOfAllLadies/**",
+                                "/bbek/ministriesOfAllMen/**",
+                                "/bbek/ministriesOfAllYoungPeople/**" )
                         .permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

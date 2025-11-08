@@ -3,10 +3,13 @@ package com.bbek.BbekServiceA.serviceImp;
 import com.bbek.BbekServiceA.entities.EventEntity;
 import com.bbek.BbekServiceA.entities.EventStatusRfEntity;
 import com.bbek.BbekServiceA.entities.modified.event.ModifiedEventEntity;
+import com.bbek.BbekServiceA.entities.pivot.EventPivotEntity;
+import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.event.EventModel;
 import com.bbek.BbekServiceA.repository.EventRepo;
 import com.bbek.BbekServiceA.repository.EventStatusRepo;
+import com.bbek.BbekServiceA.repository.pivot.EventPivotRepo;
 import com.bbek.BbekServiceA.service.EventService;
 import com.bbek.BbekServiceA.util.Config;
 import com.bbek.BbekServiceA.util.Dates;
@@ -32,13 +35,16 @@ public class EventServiceImp implements EventService {
     @Autowired
     EventStatusRepo esRepo;
 
+    @Autowired
+    EventPivotRepo epRepo;
+
     private final ApiResponseModel res = new ApiResponseModel();
 
     @Override
     public List<EventModel> getAllevent(String query, int page, String status) {
-        System.out.println("Page: "+ page);
-        String queryFormatted = "%"+query+"%";
-        int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+        System.out.println("Page: " + page);
+        String queryFormatted = "%" + query + "%";
+        int numberOfRowsToSkip = page == 1 ? 0 : (page - 1) * 10;
         List<ModifiedEventEntity> eventEntities = eRepo.paginatedEvents(queryFormatted, numberOfRowsToSkip, status);
 
         try {
@@ -65,7 +71,6 @@ public class EventServiceImp implements EventService {
     }
 
 
-
     @Override
     public ApiResponseModel saveEvent(EventEntity entity,
                                       MultipartFile file,
@@ -90,17 +95,17 @@ public class EventServiceImp implements EventService {
 
                 entity1.setFilePath(oldEntity.getFilePath());
                 entity1.setUpdateDate(LocalDateTime.now());
-            }else{
+            } else {
                 entity1.setCreatedDate(LocalDateTime.now());
             }
-            if(file != null){
+            if (file != null) {
                 File ROOT_BASE_PATH = new File(fileUploadPathImage);
                 if (!ROOT_BASE_PATH.exists()) {
                     ROOT_BASE_PATH.mkdirs();
                 }
                 String[] ext = file.getOriginalFilename().split("\\.");
                 filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
-                if(isUpdate){
+                if (isUpdate) {
                     new SaveFile().deleteFile(entity1.getFilePath());
                 }
                 entity1.setFilePath(filePath);
@@ -108,7 +113,6 @@ public class EventServiceImp implements EventService {
             }
             entity1.setStatusId(eventStatusRfEntity.getId());
             eRepo.save(entity1);
-
 
 
             res.setMessage(isUpdate ? "Event successfully updated." : "Event successfully created.");
@@ -257,12 +261,12 @@ public class EventServiceImp implements EventService {
     }
 
     @Override
-    public ApiResponseModel getPaginatedEvents(String query, int page,  String status) {
-       ApiResponseModel res = new ApiResponseModel();
-        try{
-            System.out.println("Page: "+ page);
-            String queryFormatted = "%"+query+"%";
-            int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+    public ApiResponseModel getPaginatedEvents(String query, int page, String status) {
+        ApiResponseModel res = new ApiResponseModel();
+        try {
+            System.out.println("Page: " + page);
+            String queryFormatted = "%" + query + "%";
+            int numberOfRowsToSkip = page == 1 ? 0 : (page - 1) * 10;
             List<ModifiedEventEntity> list = eRepo.paginatedEvents(queryFormatted, numberOfRowsToSkip, status);
             res.setMessage(SUCCESS);
             res.setData(list);
@@ -275,7 +279,7 @@ public class EventServiceImp implements EventService {
 
     @Override
     public ApiResponseModel getAllEventStatuses() {
-        try{
+        try {
             List<EventStatusRfEntity> list = esRepo.findAll();
             res.setData(list);
             res.setMessage(SUCCESS);
@@ -285,6 +289,32 @@ public class EventServiceImp implements EventService {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public ApiResponseModel joinEvent(EventPivotEntity entity) {
+
+        try {
+            EventPivotEntity epe = epRepo.save(entity);
+            return new ApiResponseModel("You successfully joined in this event.", 200, epe);
+        } catch (Exception e) {
+            return new ApiResponseModel("Can't process your request. Please try again later", 500, null);
+        }
+
+    }
+
+    @Override
+    public ApiResponseModel leaveEvent(Long id) {
+
+        try {
+            Optional<EventPivotEntity> epo = epRepo.findById(id);
+            EventPivotEntity ep = epo.orElse(null);
+            if (ep == null) return new ApiResponseModel("Unauthorized user. Please re-login your account.", 401, null);
+            epRepo.delete(ep);
+            return new ApiResponseModel("You successfully leave in this event.", 200, null);
+        } catch (Exception e) {
+            return new ApiResponseModel("Can't process your request. Please try again later", 500, null);
+        }
     }
 
 
