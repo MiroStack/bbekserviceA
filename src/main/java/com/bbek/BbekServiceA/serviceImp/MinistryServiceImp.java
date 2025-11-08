@@ -86,7 +86,7 @@ public class MinistryServiceImp implements MinistryService {
             String fileUploadPathImage = ministryPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
             MinistryEntity entity1 = entity;
             DepartmentEntity de = dRepo.findByDepartmentName(department);
-            entity1.setDepartmentId(de.getId());
+
             String filePath = "";
             if (isUpdate) {
                 Optional<MinistryEntity> entityOptional = mRepo.findById(entity.getId());
@@ -94,6 +94,7 @@ public class MinistryServiceImp implements MinistryService {
                 entity1.setFilepath(oldEntity.getFilepath());
                 entity1.setUpdatedDate(LocalDateTime.now());
             }else{
+                entity1.setDepartmentId(de.getId());
                 entity1.setCreatedDate(LocalDateTime.now());
             }
             entity1.setStatusId(statusRfEntity.getId());
