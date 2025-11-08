@@ -70,6 +70,66 @@ public class EventServiceImp implements EventService {
         }
     }
 
+    @Override
+    public List<EventModel> getAllUserEvent(String query, int page, String status, Long memberId) {
+        System.out.println("Page: " + page);
+        String queryFormatted = "%" + query + "%";
+        int numberOfRowsToSkip = page == 1 ? 0 : (page - 1) * 10;
+        List<ModifiedEventEntity> eventEntities = eRepo.paginatedUserEvents(queryFormatted, numberOfRowsToSkip, status, memberId);
+
+        try {
+            return eventEntities.stream().map(m -> {
+                Optional<EventStatusRfEntity> statusOptional = esRepo.findById(m.getStatusId());
+                String statusName = statusOptional.map(EventStatusRfEntity::getStatusName).orElse("Unknown");
+                return new EventModel(
+                        m.getId(),
+                        m.getEventName(),
+                        m.getEventType(),
+                        m.getEventStartDate(),
+                        m.getEventEndDate(),
+                        m.getEventLocation(),
+                        m.getAttendance(),
+                        m.getOffering(),
+                        statusName,
+                        m.getDescription(),
+                        m.getTotalRows()
+                );
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<EventModel> viewMembersOfEvents(String query, int page, String status, Long eventId) {
+        System.out.println("Page: " + page);
+        String queryFormatted = "%" + query + "%";
+        int numberOfRowsToSkip = page == 1 ? 0 : (page - 1) * 10;
+        List<ModifiedEventEntity> eventEntities = eRepo.viewPaginatedEventMembers(queryFormatted, numberOfRowsToSkip, status, eventId);
+
+        try {
+            return eventEntities.stream().map(m -> {
+                Optional<EventStatusRfEntity> statusOptional = esRepo.findById(m.getStatusId());
+                String statusName = statusOptional.map(EventStatusRfEntity::getStatusName).orElse("Unknown");
+                return new EventModel(
+                        m.getId(),
+                        m.getEventName(),
+                        m.getEventType(),
+                        m.getEventStartDate(),
+                        m.getEventEndDate(),
+                        m.getEventLocation(),
+                        m.getAttendance(),
+                        m.getOffering(),
+                        statusName,
+                        m.getDescription(),
+                        m.getTotalRows()
+                );
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Override
     public ApiResponseModel saveEvent(EventEntity entity,
@@ -295,6 +355,8 @@ public class EventServiceImp implements EventService {
     public ApiResponseModel joinEvent(EventPivotEntity entity) {
 
         try {
+            EventPivotEntity entity1 = epRepo.findByEventId(entity.getEventId());
+            if(entity1 != null) return new ApiResponseModel("You already joined in this event.", 400, null);
             EventPivotEntity epe = epRepo.save(entity);
             return new ApiResponseModel("You successfully joined in this event.", 200, epe);
         } catch (Exception e) {

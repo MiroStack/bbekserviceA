@@ -4,9 +4,13 @@ import com.bbek.BbekServiceA.entities.EventEntity;
 import com.bbek.BbekServiceA.entities.pivot.EventPivotEntity;
 import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
+import com.bbek.BbekServiceA.model.MinistryModel;
+import com.bbek.BbekServiceA.model.TokenModel;
 import com.bbek.BbekServiceA.model.event.EventModel;
+import com.bbek.BbekServiceA.service.AuthService;
 import com.bbek.BbekServiceA.serviceImp.EventServiceImp;
 import com.bbek.BbekServiceA.util.ResponseHelper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.bbek.BbekServiceA.util.Constant.BBEK;
+import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
 
 @RestController
 @RequestMapping(BBEK)
@@ -34,6 +39,9 @@ public class EventController {
 
     @Autowired
     ResponseHelper helper;
+
+    @Autowired
+    AuthService authService;
 
     @PostMapping(value = "/saveEvent", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseModel> saveMinistry(
@@ -48,11 +56,11 @@ public class EventController {
             @RequestParam("description") String description,
             @RequestParam("statusName") String statusName,
             @RequestParam("isUpdate") boolean isUpdate,
-             @RequestParam(value = "file", required = false) MultipartFile file
-            ) {
-        try{
+            @RequestParam(value = "file", required = false) MultipartFile file
+    ) {
+        try {
             EventEntity entity = new EventEntity();
-            if(isUpdate){
+            if (isUpdate) {
                 entity.setId(id);
             }
             entity.setEventName(eventName);
@@ -65,14 +73,13 @@ public class EventController {
             entity.setDescription(description);
 
             return new ResponseEntity<>(eService.saveEvent(entity, file, isUpdate, statusName), HttpStatus.OK);
-        } catch(RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping("getAllEvent")
-    public ResponseEntity<List<EventModel>> getAllEventList(@RequestParam(value="query", required = false)String query, @RequestParam(value = "page", required = false)int page, @RequestParam(value = "status") String status) {
+    public ResponseEntity<List<EventModel>> getAllEventList(@RequestParam(value = "query", required = false) String query, @RequestParam(value = "page", required = false) int page, @RequestParam(value = "status") String status) {
         try {
             return new ResponseEntity<List<EventModel>>(eService.getAllevent(query, page, status), HttpStatus.OK);
         } catch (RuntimeException e) {
@@ -106,26 +113,26 @@ public class EventController {
     }
 
     @GetMapping("getEvent")
-    public ResponseEntity<ApiResponseModel> getEvent(@RequestParam("id") long id){
-        try{
-            return new ResponseEntity<>(eService.getEvent(id),HttpStatus.OK);
+    public ResponseEntity<ApiResponseModel> getEvent(@RequestParam("id") long id) {
+        try {
+            return new ResponseEntity<>(eService.getEvent(id), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("deleteEvent")
-    public ResponseEntity<ApiResponseModel> deleteEvent(@RequestParam("id") Long id){
-        try{
-            return new ResponseEntity<>(eService.deleteEvent(id),HttpStatus.OK);
+    public ResponseEntity<ApiResponseModel> deleteEvent(@RequestParam("id") Long id) {
+        try {
+            return new ResponseEntity<>(eService.deleteEvent(id), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping("upcomingEvents")
-    public ResponseEntity<ApiResponseModel> upcomingEvents(){
-        try{
+    public ResponseEntity<ApiResponseModel> upcomingEvents() {
+        try {
             return new ResponseEntity<>(eService.getUpcomingEvent(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -133,8 +140,8 @@ public class EventController {
     }
 
     @GetMapping("getPaginatedEvents")
-    public ResponseEntity<ApiResponseModel> getPaginatedEvents(@RequestParam(value="query", required = false)String query, @RequestParam(value = "page", required = false)int page, String status){
-        try{
+    public ResponseEntity<ApiResponseModel> getPaginatedEvents(@RequestParam(value = "query", required = false) String query, @RequestParam(value = "page", required = false) int page, String status) {
+        try {
             return new ResponseEntity<>(eService.getPaginatedEvents(query, page, status), HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity
@@ -144,8 +151,8 @@ public class EventController {
     }
 
     @GetMapping("getAllEventStatuses")
-    public ResponseEntity<ApiResponseModel> getAllEventStatuses(){
-        try{
+    public ResponseEntity<ApiResponseModel> getAllEventStatuses() {
+        try {
             return new ResponseEntity<>(eService.getAllEventStatuses(), HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity
@@ -153,6 +160,7 @@ public class EventController {
                     .build();
         }
     }
+
     @GetMapping("joinEvent")
     public ResponseEntity<ApiResponseModel> joinEvent(@RequestBody EventPivotEntity entity) {
         ApiResponseModel res = eService.joinEvent(entity);
@@ -164,5 +172,50 @@ public class EventController {
         ApiResponseModel res = eService.leaveEvent(id);
         return helper.response(res);
     }
+
+    @PostMapping("joinEvent")
+    ResponseEntity<ApiResponseModel> joinEvent(HttpServletRequest request, @RequestParam("eventId") Long eventId) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            TokenModel model = authService.getTokenModel(token);
+            String message = "Extracted token: " + token;// remove "Bearer "
+            EventPivotEntity entity = new EventPivotEntity();
+            entity.setEventId(eventId);
+            entity.setMemberId(model.getMemberId());
+            ApiResponseModel res = eService.joinEvent(entity);
+            return helper.response(res);
+        } else {
+            String message = "No Bearer token found";
+            return ResponseEntity.ok(new ApiResponseModel(message, 400, null));
+        }
+    }
+
+    @GetMapping("eventsOfUser")
+    ResponseEntity<ApiResponseModel> eventsOfUser(HttpServletRequest request, @RequestParam(value = "query", required = false) String query, @RequestParam(value = "page", required = false) int page, @RequestParam("status") String status) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            TokenModel model = authService.getTokenModel(token);
+            String message = "Extracted token: " + token;// remove "Bearer "
+            List<EventModel> list = eService.getAllUserEvent(query, page, status, model.getMemberId());
+            if (list.isEmpty()) return ResponseEntity.ok(new ApiResponseModel("No event found.", 404, null));
+            return ResponseEntity.ok(new ApiResponseModel(SUCCESS, 200, list));
+        } else {
+            String message = "No Bearer token found";
+            return ResponseEntity.ok(new ApiResponseModel(message, 401, null));
+        }
+    }
+
+    @GetMapping("viewMembersOfEvent")
+    ResponseEntity<ApiResponseModel> viewMembersOfEvent(@RequestParam(value = "query", required = false) String query, @RequestParam(value = "page", required = false) int page, @RequestParam("status") String status, @RequestParam("eventId") Long eventId) {
+
+        List<EventModel> list = eService.viewMembersOfEvents(query, page, status, eventId);
+        if (list.isEmpty()) return ResponseEntity.ok(new ApiResponseModel("No event found.", 404, null));
+        return ResponseEntity.ok(new ApiResponseModel(SUCCESS, 200, list));
+    }
+
 
 }

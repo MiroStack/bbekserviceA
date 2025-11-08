@@ -275,6 +275,8 @@ public class MinistryServiceImp implements MinistryService {
     @Override
     public ApiResponseModel joinMinistry(MinistryPivotEntity entity) {
         try{
+            MinistryPivotEntity entity1 = mpRepo.findByMinistryId(entity.getMinistryId());
+            if(entity1 != null) return new ApiResponseModel("You already joined in this ministry", 400, null);
             MinistryPivotEntity me = mpRepo.save(entity);
             return new ApiResponseModel("You successfully joined in this ministry.", 200, me);
         } catch (Exception e) {

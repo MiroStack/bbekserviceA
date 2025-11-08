@@ -50,4 +50,91 @@ public interface EventRepo extends JpaRepository<EventEntity, Long> {
             "OFFSET 0;", nativeQuery = true)
     List<ModifiedEventEntity> paginatedEvents(@Param("query") String query, @Param("numberOfRowsToSkip") int numberOfRowsToSkip, @Param("status") String status);
 
+    @Query(value = """
+    SELECT
+      e.id,
+      e.event_name,
+      e.event_type,
+      e.event_location,
+      e.attendance,
+      e.offering,
+      e.status_id,
+      e.filepath,
+      e.created_dt,
+      e.update_dt,
+      e.description,
+      e.event_start_date,
+      e.event_end_date,
+      res.status_name,
+      COUNT(*) OVER() AS total_rows
+    FROM bbek.event AS e
+    INNER JOIN rf_event_status res ON e.status_id = res.id
+    LEFT JOIN event_pivot_table ept ON e.id = ept.event_id
+    WHERE
+      (:query IS NULL OR :query = '' OR (
+          e.event_name LIKE :query
+          OR e.event_type LIKE :query
+          OR e.event_location LIKE :query
+          OR e.attendance LIKE :query
+          OR e.offering LIKE :query
+          OR e.description LIKE :query
+          OR res.status_name LIKE :query
+      ))
+    AND (ept.member_id = :memberId)
+    AND(:status IS NULL OR :status = '' OR res.status_name LIKE CONCAT('%', :status, '%'))
+    ORDER BY e.id DESC
+    LIMIT 10
+    OFFSET :numberOfRowsToSkip
+    """, nativeQuery = true)
+    List<ModifiedEventEntity> paginatedUserEvents(
+            @Param("query") String query,
+            @Param("numberOfRowsToSkip") int numberOfRowsToSkip,
+            @Param("status") String status,
+            @Param("memberId") Long memberId
+    );
+
+    @Query(value = """
+    SELECT
+      e.id,
+      e.event_name,
+      e.event_type,
+      e.event_location,
+      e.attendance,
+      e.offering,
+      e.status_id,
+      e.filepath,
+      e.created_dt,
+      e.update_dt,
+      e.description,
+      e.event_start_date,
+      e.event_end_date,
+      res.status_name,
+      COUNT(*) OVER() AS total_rows
+    FROM bbek.event AS e
+    INNER JOIN rf_event_status res ON e.status_id = res.id
+    LEFT JOIN event_pivot_table ept ON e.id = ept.event_id
+    WHERE
+      (:query IS NULL OR :query = '' OR (
+          e.event_name LIKE :query
+          OR e.event_type LIKE :query
+          OR e.event_location LIKE :query
+          OR e.attendance LIKE :query
+          OR e.offering LIKE :query
+          OR e.description LIKE :query
+          OR res.status_name LIKE :query
+      ))
+    AND (ept.event_id = :eventId)
+    AND(:status IS NULL OR :status = '' OR res.status_name LIKE CONCAT('%', :status, '%'))
+    ORDER BY e.id DESC
+    LIMIT 10
+    OFFSET :numberOfRowsToSkip
+    """, nativeQuery = true)
+    List<ModifiedEventEntity> viewPaginatedEventMembers(
+            @Param("query") String query,
+            @Param("numberOfRowsToSkip") int numberOfRowsToSkip,
+            @Param("status") String status,
+            @Param("eventId") Long eventId
+    );
+
+
 }

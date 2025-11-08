@@ -121,4 +121,6 @@ public interface MinistryRepo extends JpaRepository<MinistryEntity, Long> {
     );
 
 
+
+
 }

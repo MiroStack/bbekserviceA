@@ -55,8 +55,8 @@ public class SecurityConfig {
                                 "bbek/submitBaptism/**",
                                 "/bbek/submit_donation/**",
                                 "/bbek/sendEmailMessage/**",
-                                "/bbek/departments/**",
-                                "/bbek/positions/**.",
+                                "/bbek/departments",
+                                "/bbek/positions",
                                 "/bbek/ministriesOfAllLadies/**",
                                 "/bbek/ministriesOfAllMen/**",
                                 "/bbek/ministriesOfAllYoungPeople/**" )

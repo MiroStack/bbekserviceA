@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface EventService {
     public List<EventModel> getAllevent(String query, int page, String status);
+    List<EventModel> getAllUserEvent(String query, int page, String status, Long memberId);
+    List<EventModel> viewMembersOfEvents(String query, int page, String status, Long eventId);
    ApiResponseModel saveEvent(
           EventEntity entity,
           MultipartFile file,
