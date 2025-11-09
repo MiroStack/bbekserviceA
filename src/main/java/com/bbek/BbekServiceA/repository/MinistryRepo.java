@@ -1,6 +1,7 @@
 package com.bbek.BbekServiceA.repository;
 
-import com.bbek.BbekServiceA.entities.MinistryEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryMemberEntity;
 import com.bbek.BbekServiceA.entities.modified.minsitry.ModifiedMinistryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -120,7 +121,50 @@ public interface MinistryRepo extends JpaRepository<MinistryEntity, Long> {
             @Param("userId") Long id
     );
 
+    @Query(value = """
+            SELECT COUNT(*) FROM ministry
+            """, nativeQuery = true)
+    Long totalMinistries();
+
+    @Query(value = """
+            SELECT COUNT(*) FROM ministry WHERE status_id = 1
+            """, nativeQuery = true)
+    Long totalActiveMinistries();
+
+    @Query(value = """
+            SELECT COUNT(*) FROM pivot_ministry_table WHERE status_id = 2
+            """, nativeQuery = true)
+    Long totalMinistryMembers();
 
 
+    @Query(value = """
+            SELECT\s
+            mpt.id,
+            CONCAT(up.firstname,' ',up.middlename,' ',up.middlename) as fullname,
+            m.ministry_name,
+            mas.status_name,
+            mpt.created_dt
+            FROM user_profile up
+            LEFT JOIN tbl_member tm ON up.id = tm.profile_id
+            RIGHT JOIN ministry_pivot_table mpt ON tm.id = mpt.member_id
+            LEFT JOIN ministry m ON mpt.ministry_id = m.id
+            LEFT JOIN member_application_statuses mas ON mpt.status_id = mas.id
+            WHERE m.id = 21
+            AND(
+               CONCAT(up.firstname, ' ', up.middlename, ' ', up.lastname) LIKE CONCAT('%', :query, '%')
+               or mas.status_name  LIKE CONCAT('%', :query, '%')
+            )
+            LIMIT 20
+            OFFSET 0
+            """, nativeQuery = true)
+    List<MinistryMemberEntity> findAllMinistryMembers(@Param("ministryId") Long ministryId, @Param("query") String query, @Param("numberOfRowsToSkip") int numberOfRowsToSkip);
+
+
+    @Query(value = """
+            SELECT COUNT(*) FROM pivot_ministry_table
+            WHERE status_id = 2
+            AND ministry_id = :ministryId
+            """, nativeQuery = true)
+  Long totalMembersPerMinistry(@Param("ministryId") Long ministryId);
 
 }

@@ -1,10 +1,9 @@
 package com.bbek.BbekServiceA.controllers;
 
-import com.bbek.BbekServiceA.entities.MinistryEntity;
-import com.bbek.BbekServiceA.entities.modified.minsitry.ModifiedMinistryEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryEntity;
 import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
-import com.bbek.BbekServiceA.model.MinistryModel;
+import com.bbek.BbekServiceA.model.ministry.MinistryModel;
 import com.bbek.BbekServiceA.model.TokenModel;
 import com.bbek.BbekServiceA.service.AuthService;
 import com.bbek.BbekServiceA.serviceImp.MinistryServiceImp;
@@ -20,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.bbek.BbekServiceA.util.Constant.BBEK;

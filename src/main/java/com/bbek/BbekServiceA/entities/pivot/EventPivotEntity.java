@@ -24,4 +24,7 @@ public class EventPivotEntity {
     @Column(name = "member_id")
     private Long memberId;
 
+    @Column(name = "status_id")
+    private Long statusId;
+
 }

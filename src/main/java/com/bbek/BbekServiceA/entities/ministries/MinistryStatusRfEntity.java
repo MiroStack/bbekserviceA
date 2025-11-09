@@ -1,4 +1,4 @@
-package com.bbek.BbekServiceA.entities;
+package com.bbek.BbekServiceA.entities.ministries;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -2,16 +2,13 @@ package com.bbek.BbekServiceA.controllers;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
 import com.bbek.BbekServiceA.entities.pivot.EventPivotEntity;
-import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
-import com.bbek.BbekServiceA.model.MinistryModel;
 import com.bbek.BbekServiceA.model.TokenModel;
 import com.bbek.BbekServiceA.model.event.EventModel;
 import com.bbek.BbekServiceA.service.AuthService;
 import com.bbek.BbekServiceA.serviceImp.EventServiceImp;
 import com.bbek.BbekServiceA.util.ResponseHelper;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

@@ -1,10 +1,9 @@
 package com.bbek.BbekServiceA.service;
 
-import com.bbek.BbekServiceA.entities.MinistryEntity;
-import com.bbek.BbekServiceA.entities.modified.minsitry.ModifiedMinistryEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryEntity;
 import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
-import com.bbek.BbekServiceA.model.MinistryModel;
+import com.bbek.BbekServiceA.model.ministry.MinistryModel;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -24,4 +23,9 @@ public interface MinistryService {
     List<MinistryModel> getAllMenMinistries(String query, int page);
     List<MinistryModel> getYoungPeopleMinistries(String query, int page);
     List<MinistryModel> getMyMinistry(String query, int page, Long userId);
+    ApiResponseModel updateMemberJoinApplication(Long pivotId, String statusName, Long userId);
+    ApiResponseModel viewMembersOfMinistries(Long ministryId, String query, int page);
+    ApiResponseModel viewTotalMembersPerMinistry(Long ministryId);
+    ApiResponseModel getTotalMinistryAndMembers();
+
 }

@@ -379,5 +379,20 @@ public class EventServiceImp implements EventService {
         }
     }
 
+    @Override
+    public ApiResponseModel updateMemberJoinEventApplication(Long pivotId, String statusName, Long userId) {
+        return null;
+    }
+
+    @Override
+    public ApiResponseModel viewMembersOfEvents(Long eventId, String query, int page) {
+        return null;
+    }
+
+    @Override
+    public ApiResponseModel viewTotalMemberPerEvent(Long eventId) {
+        return null;
+    }
+
 
 }

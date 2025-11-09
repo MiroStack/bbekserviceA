@@ -1,4 +1,4 @@
-package com.bbek.BbekServiceA.entities;
+package com.bbek.BbekServiceA.entities.ministries;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;

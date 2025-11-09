@@ -1,17 +1,24 @@
 package com.bbek.BbekServiceA.serviceImp;
 
-import com.bbek.BbekServiceA.entities.EventEntity;
-import com.bbek.BbekServiceA.entities.MinistryEntity;
-import com.bbek.BbekServiceA.entities.MinistryStatusRfEntity;
+import com.bbek.BbekServiceA.entities.MemberEntity;
+import com.bbek.BbekServiceA.entities.UserProfileEntity;
+import com.bbek.BbekServiceA.entities.history.HistoryLogEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryMemberEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryStatusRfEntity;
 import com.bbek.BbekServiceA.entities.modified.minsitry.ModifiedMinistryEntity;
-import com.bbek.BbekServiceA.entities.pivot.EventPivotEntity;
 import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
+import com.bbek.BbekServiceA.entities.reference.ApplicationStatusEntity;
 import com.bbek.BbekServiceA.entities.reference.DepartmentEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
-import com.bbek.BbekServiceA.model.MinistryModel;
+import com.bbek.BbekServiceA.model.ministry.MinistryModel;
+import com.bbek.BbekServiceA.model.ministry.TotalMinistryModel;
+import com.bbek.BbekServiceA.repository.MemberRepo;
 import com.bbek.BbekServiceA.repository.MinistryRepo;
 import com.bbek.BbekServiceA.repository.MinistryStatusRepo;
+import com.bbek.BbekServiceA.repository.history.HistoryLogRepo;
 import com.bbek.BbekServiceA.repository.pivot.MinistryPivotRepo;
+import com.bbek.BbekServiceA.repository.reference.ApplicationStatusRepo;
 import com.bbek.BbekServiceA.repository.reference.DepartmentRepo;
 import com.bbek.BbekServiceA.service.MinistryService;
 import com.bbek.BbekServiceA.util.Config;
@@ -22,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,8 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.bbek.BbekServiceA.util.Constant.FAILED;
-import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
+import static com.bbek.BbekServiceA.util.Constant.*;
 
 @Service
 public class MinistryServiceImp implements MinistryService {
@@ -45,6 +52,15 @@ public class MinistryServiceImp implements MinistryService {
 
     @Autowired
     MinistryPivotRepo mpRepo;
+
+    @Autowired
+    ApplicationStatusRepo asRepo;
+
+    @Autowired
+    HistoryLogRepo hlRepo;
+
+    @Autowired
+    MemberRepo memberRepo;
 
     private final ApiResponseModel res = new ApiResponseModel();
 
@@ -271,6 +287,7 @@ public class MinistryServiceImp implements MinistryService {
     @Override
     public ApiResponseModel joinMinistry(MinistryPivotEntity entity) {
         try{
+
             MinistryPivotEntity entity1 = mpRepo.findByMinistryId(entity.getMinistryId());
             if(entity1 != null) return new ApiResponseModel("You already joined in this ministry", 400, null);
             MinistryPivotEntity me = mpRepo.save(entity);
@@ -396,5 +413,82 @@ public class MinistryServiceImp implements MinistryService {
             );
         }).collect(Collectors.toList());
         return ministryModelList;
+    }
+
+    @Override
+    public ApiResponseModel updateMemberJoinApplication(Long pivotId, String statusName, Long userId) {
+       try{
+           Optional<MinistryPivotEntity> mpo = mpRepo.findById(pivotId);
+           MinistryPivotEntity mpe = mpo.orElse(null);
+           if(mpe == null) return new ApiResponseModel(NOT_FOUND, 404, null);
+           ApplicationStatusEntity ase = asRepo.findByStatusName(statusName);
+           mpe.setStatusId(ase.getId());
+           mpe.setModifiedBy(userId);
+           mpe.setModifiedDt(LocalDateTime.now());
+
+           MinistryPivotEntity savedEntity = mpRepo.save(mpe);
+
+           Optional<MinistryEntity> ministryEntityOptional = mRepo.findById(mpe.getMinistryId());
+           MinistryEntity ministryEntity = ministryEntityOptional.orElse(null);
+
+           Optional<MemberEntity> meo = memberRepo.findById(userId);
+           MemberEntity me = meo.orElse(null);
+
+
+           Optional<MemberEntity> meo1 = memberRepo.findById(userId);
+           MemberEntity me1 = meo1.orElse(null);
+           if(me1 == null || me == null)return new ApiResponseModel(NOT_FOUND, 404, null);
+
+           //create history
+           HistoryLogEntity he = new HistoryLogEntity();
+           he.setCategory("Ministry");
+           he.setName(me1.getMemberName());
+           he.setCreatedById(userId);
+           he.setStatus(statusName);
+           he.setParentId(savedEntity.getId());
+           he.setCreatedDt(LocalDateTime.now());
+           he.setDescription("Application of "+me.getMemberName()+"for minsitry "+ministryEntity.getMinistryName()+" is updated to "+statusName+" by "+me1.getMemberName());
+           hlRepo.save(he);
+
+           return new ApiResponseModel(SUCCESS, 200, null);
+       } catch (Exception e) {
+           return  new ApiResponseModel(FAILED, 500, null);
+       }
+    }
+
+    @Override
+    public ApiResponseModel viewMembersOfMinistries(Long ministryId, String query, int page) {
+        try{
+            int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+            List<MinistryMemberEntity> list = mRepo.findAllMinistryMembers(ministryId, query, numberOfRowsToSkip);
+            return new ApiResponseModel(SUCCESS, 200, list);
+        } catch (Exception e) {
+            return  new ApiResponseModel(FAILED, 500, null);
+        }
+    }
+
+    @Override
+    public ApiResponseModel viewTotalMembersPerMinistry(Long ministryId) {
+        try{
+            Long totalMembers = mRepo.totalMembersPerMinistry(ministryId);
+            return new ApiResponseModel(SUCCESS, 200, totalMembers);
+        } catch (Exception e) {
+            return  new ApiResponseModel(FAILED, 500, null);
+        }
+    }
+
+    @Override
+    public ApiResponseModel getTotalMinistryAndMembers() {
+        try{
+            Long totalMembers = mRepo.totalMinistryMembers();
+            Long totalActiveMinistries = mRepo.totalActiveMinistries();
+            Long totalMinistries = mRepo.totalMinistries();
+            TotalMinistryModel model = new TotalMinistryModel(totalMinistries,totalActiveMinistries,totalMembers);
+            return new ApiResponseModel(SUCCESS, 200, model);
+
+        } catch (Exception e) {
+            return  new ApiResponseModel(FAILED, 500, null);
+        }
+
     }
 }
