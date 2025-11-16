@@ -295,6 +295,7 @@ public class MinistryServiceImp implements MinistryService {
         try{
 
             MinistryPivotEntity entity1 = mpRepo.findByMinistryId(entity.getMinistryId());
+            entity1.setCreatedDt(LocalDateTime.now());
             if(entity1 != null) return new ApiResponseModel("You already joined in this ministry", 400, null);
             MinistryPivotEntity me = mpRepo.save(entity);
             return new ApiResponseModel("You successfully joined in this ministry.", 200, me);
