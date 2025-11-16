@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "event_pivot_table")
 @Data
@@ -26,5 +28,14 @@ public class EventPivotEntity {
 
     @Column(name = "status_id")
     private Long statusId;
+
+    @Column(name = "created_dt")
+    private LocalDateTime createdDt;
+
+    @Column(name = "modified_dt")
+    private LocalDateTime modifiedDt;
+
+    @Column(name = "modified_by")
+    private Long modifiedBy;
 
 }

@@ -2,14 +2,23 @@ package com.bbek.BbekServiceA.serviceImp;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
 import com.bbek.BbekServiceA.entities.EventStatusRfEntity;
+import com.bbek.BbekServiceA.entities.MemberEntity;
+import com.bbek.BbekServiceA.entities.history.HistoryLogEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryMemberEntity;
+import com.bbek.BbekServiceA.entities.modified.event.EventMemberEntity;
 import com.bbek.BbekServiceA.entities.modified.event.ModifiedEventEntity;
 import com.bbek.BbekServiceA.entities.pivot.EventPivotEntity;
 import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
+import com.bbek.BbekServiceA.entities.reference.ApplicationStatusEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.event.EventModel;
 import com.bbek.BbekServiceA.repository.EventRepo;
 import com.bbek.BbekServiceA.repository.EventStatusRepo;
+import com.bbek.BbekServiceA.repository.MemberRepo;
+import com.bbek.BbekServiceA.repository.history.HistoryLogRepo;
 import com.bbek.BbekServiceA.repository.pivot.EventPivotRepo;
+import com.bbek.BbekServiceA.repository.reference.ApplicationStatusRepo;
 import com.bbek.BbekServiceA.service.EventService;
 import com.bbek.BbekServiceA.util.Config;
 import com.bbek.BbekServiceA.util.Dates;
@@ -25,8 +34,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.bbek.BbekServiceA.util.Constant.FAILED;
-import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
+import static com.bbek.BbekServiceA.util.Constant.*;
+import static com.bbek.BbekServiceA.util.Constant.NOT_FOUND;
 
 @Service
 public class EventServiceImp implements EventService {
@@ -37,6 +46,17 @@ public class EventServiceImp implements EventService {
 
     @Autowired
     EventPivotRepo epRepo;
+
+    @Autowired
+    ApplicationStatusRepo aRepo;
+
+    @Autowired
+    HistoryLogRepo hlRepo;
+
+
+
+    @Autowired
+    MemberRepo memberRepo;
 
     private final ApiResponseModel res = new ApiResponseModel();
 
@@ -386,12 +406,63 @@ public class EventServiceImp implements EventService {
 
     @Override
     public ApiResponseModel viewMembersOfEvents(Long eventId, String query, int page) {
-        return null;
+
+            try{
+                int numberOfRowsToSkip = page == 1? 0 : (page - 1) * 10;
+                List<EventMemberEntity> list = eRepo.findAllEventMembers(eventId, query, numberOfRowsToSkip);
+                return new ApiResponseModel(SUCCESS, 200, list);
+            } catch (Exception e) {
+                return  new ApiResponseModel(FAILED, 500, null);
+            }
+
     }
 
     @Override
     public ApiResponseModel viewTotalMemberPerEvent(Long eventId) {
-        return null;
+        Long totalMembers = eRepo.totalEventMembers();
+        return new ApiResponseModel(SUCCESS, 200, totalMembers);
+    }
+
+    @Override
+    public ApiResponseModel updateMemberEventJoinApplication(Long pivotId, String statusName, Long userId) {
+        try{
+            Optional<EventPivotEntity> epo = epRepo.findById(pivotId);
+            EventPivotEntity epe = epo.orElse(null);
+            if(epe == null) return new ApiResponseModel(NOT_FOUND, 404, null);
+            ApplicationStatusEntity ase = aRepo.findByStatusName(statusName);
+            epe.setStatusId(ase.getId());
+            epe.setModifiedBy(userId);
+            epe.setModifiedDt(LocalDateTime.now());
+
+            EventPivotEntity savedEntity = epRepo.save(epe);
+
+            Optional<EventEntity> eventEntityOptional = eRepo.findById(epe.getEventId());
+            EventEntity eventEntity = eventEntityOptional.orElse(null);
+
+
+            Optional<MemberEntity> meo = memberRepo.findById(userId);
+            MemberEntity me = meo.orElse(null);
+
+
+            Optional<MemberEntity> meo1 = memberRepo.findById(userId);
+            MemberEntity me1 = meo1.orElse(null);
+            if(me1 == null || me == null)return new ApiResponseModel(NOT_FOUND, 404, null);
+
+            //create history
+            HistoryLogEntity he = new HistoryLogEntity();
+            he.setCategory("Ministry");
+            he.setName(me1.getMemberName());
+            he.setCreatedById(userId);
+            he.setStatus(statusName);
+            he.setParentId(savedEntity.getId());
+            he.setCreatedDt(LocalDateTime.now());
+            he.setDescription("Application of "+me.getMemberName()+"for event "+eventEntity.getEventName()+" is updated to "+statusName+" by "+me1.getMemberName());
+            hlRepo.save(he);
+
+            return new ApiResponseModel(SUCCESS, 200, null);
+        } catch (Exception e) {
+            return  new ApiResponseModel(FAILED, 500, null);
+        }
     }
 
 

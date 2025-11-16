@@ -132,7 +132,7 @@ public interface MinistryRepo extends JpaRepository<MinistryEntity, Long> {
     Long totalActiveMinistries();
 
     @Query(value = """
-            SELECT COUNT(*) FROM pivot_ministry_table WHERE status_id = 2
+            SELECT COUNT(*) FROM ministry_pivot_table WHERE status_id = 2
             """, nativeQuery = true)
     Long totalMinistryMembers();
 
@@ -149,7 +149,7 @@ public interface MinistryRepo extends JpaRepository<MinistryEntity, Long> {
             RIGHT JOIN ministry_pivot_table mpt ON tm.id = mpt.member_id
             LEFT JOIN ministry m ON mpt.ministry_id = m.id
             LEFT JOIN member_application_statuses mas ON mpt.status_id = mas.id
-            WHERE m.id = 21
+            WHERE m.id = :ministryId
             AND(
                CONCAT(up.firstname, ' ', up.middlename, ' ', up.lastname) LIKE CONCAT('%', :query, '%')
                or mas.status_name  LIKE CONCAT('%', :query, '%')
@@ -161,7 +161,7 @@ public interface MinistryRepo extends JpaRepository<MinistryEntity, Long> {
 
 
     @Query(value = """
-            SELECT COUNT(*) FROM pivot_ministry_table
+            SELECT COUNT(*) FROM ministry_pivot_table
             WHERE status_id = 2
             AND ministry_id = :ministryId
             """, nativeQuery = true)

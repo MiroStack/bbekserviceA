@@ -3,10 +3,12 @@ package com.bbek.BbekServiceA.controllers;
 import com.bbek.BbekServiceA.entities.ministries.MinistryEntity;
 import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
+import com.bbek.BbekServiceA.model.ministry.CreateMinistryModel;
 import com.bbek.BbekServiceA.model.ministry.MinistryModel;
 import com.bbek.BbekServiceA.model.TokenModel;
 import com.bbek.BbekServiceA.service.AuthService;
 import com.bbek.BbekServiceA.serviceImp.MinistryServiceImp;
+import com.bbek.BbekServiceA.util.ExceptionLogger;
 import com.bbek.BbekServiceA.util.ResponseHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ public class MinistryController {
 
     @Autowired
     ResponseHelper helper;
+
+    @Autowired
+    ExceptionLogger exceptionLogger;
 
     @Autowired
     AuthService authService;
@@ -74,35 +79,11 @@ public class MinistryController {
 
 
     @PostMapping(value = "/saveMinistry", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponseModel> saveMinistry(
-            @RequestParam("id") long id,
-            @RequestParam("schedule") String schedule,
-            @RequestParam("leader") String leader,
-            @RequestParam("statusName") String statusName,
-            @RequestParam("ministryName") String ministryName,
-            @RequestParam("description") String description,
-            @RequestParam("member") Integer member,
-            @RequestParam("department") String department,
-            @RequestParam("startTime") LocalTime startTime,
-            @RequestParam("endTime") LocalTime endTime,
-            @RequestParam("isUpdate") boolean isUpdate,
-            @RequestParam(value = "file", required = false) MultipartFile file) {
-        try {
-            MinistryEntity entity = new MinistryEntity();
-            if (isUpdate) {
-                entity.setId(id);
-            }
-            entity.setSchedule(schedule);
-            entity.setLeader(leader);
-            entity.setMinistryName(ministryName);
-            entity.setDescription(description);
-            entity.setMember(member);
-            entity.setStartTime(startTime);
-            entity.setEndTime(endTime);
-            return new ResponseEntity<>(serviceImp.saveMinistry(entity, isUpdate, statusName, department, file), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<ApiResponseModel> saveMinistry(@ModelAttribute CreateMinistryModel model) {
+        System.out.println("UPDATE FLAG --> " + model.isUpdate());
+        ApiResponseModel res = serviceImp.saveMinistry(model);
+        return helper.responseHelper(res);
+
     }
 
     @GetMapping("getMinistry")
@@ -153,30 +134,32 @@ public class MinistryController {
     @GetMapping("joinMinistry")
     public ResponseEntity<ApiResponseModel> joinMinistry(@RequestBody MinistryPivotEntity entity) {
         ApiResponseModel res = serviceImp.joinMinistry(entity);
-        return helper.response(res);
+        return helper.responseHelper(res);
     }
 
     @GetMapping("leaveMinistry/{id}")
     public ResponseEntity<ApiResponseModel> leaveMinistry(@PathVariable("id") Long id) {
         ApiResponseModel res = serviceImp.leaveMinistry(id);
-        return helper.response(res);
+        return helper.responseHelper(res);
     }
 
     @GetMapping("ministriesOfAllLadies")
-    List<MinistryModel> ministriesOfAllLadiesDepartment(@RequestParam("query") String query, @RequestParam("page") int page){
+    List<MinistryModel> ministriesOfAllLadiesDepartment(@RequestParam("query") String query, @RequestParam("page") int page) {
         return serviceImp.getAllLadiesMinistries(query, page);
     }
+
     @GetMapping("ministriesOfAllMen")
-    List<MinistryModel> ministriesOfAllMenDepartment(@RequestParam("query") String query, @RequestParam("page") int page){
+    List<MinistryModel> ministriesOfAllMenDepartment(@RequestParam("query") String query, @RequestParam("page") int page) {
         return serviceImp.getAllMenMinistries(query, page);
     }
+
     @GetMapping("ministriesOfAllYoungPeople")
-    List<MinistryModel> ministriesOfAllYoungPeopleDepartment(@RequestParam("query") String query, @RequestParam("page") int page){
+    List<MinistryModel> ministriesOfAllYoungPeopleDepartment(@RequestParam("query") String query, @RequestParam("page") int page) {
         return serviceImp.getYoungPeopleMinistries(query, page);
     }
 
     @GetMapping("ministriesOfUser")
-    ResponseEntity<ApiResponseModel> getUserMinistries(HttpServletRequest request, @RequestParam("query") String query, @RequestParam("page") int page){
+    ResponseEntity<ApiResponseModel> getUserMinistries(HttpServletRequest request, @RequestParam("query") String query, @RequestParam("page") int page) {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -184,8 +167,8 @@ public class MinistryController {
             TokenModel model = authService.getTokenModel(token);
             String message = "Extracted token: " + token;// remove "Bearer "
             List<MinistryModel> list = serviceImp.getMyMinistry(query, page, model.getMemberId());
-            if(list.isEmpty())return ResponseEntity.ok(new ApiResponseModel("No ministries found.", 404, null));
-            return  ResponseEntity.ok(new ApiResponseModel(SUCCESS, 200, list));
+            if (list.isEmpty()) return ResponseEntity.ok(new ApiResponseModel("No ministries found.", 404, null));
+            return ResponseEntity.ok(new ApiResponseModel(SUCCESS, 200, list));
         } else {
             String message = "No Bearer token found";
             return ResponseEntity.ok(new ApiResponseModel(message, 401, null));
@@ -198,7 +181,7 @@ public class MinistryController {
     }
 
     @PostMapping("joinMinistry")
-    ResponseEntity<ApiResponseModel> joinMinistry(HttpServletRequest request, @RequestParam("ministryId") Long ministryId){
+    ResponseEntity<ApiResponseModel> joinMinistry(HttpServletRequest request, @RequestParam("ministryId") Long ministryId) {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -209,12 +192,46 @@ public class MinistryController {
             entity.setMinistryId(ministryId);
             entity.setMemberId(model.getMemberId());
             ApiResponseModel res = serviceImp.joinMinistry(entity);
-            return helper.response(res);
+            return helper.responseHelper(res);
         } else {
             String message = "No Bearer token found";
             return ResponseEntity.ok(new ApiResponseModel(message, 400, null));
         }
     }
 
+    @PutMapping("updateMemberApplication")
+    ResponseEntity<ApiResponseModel> updateMemberApplication(HttpServletRequest request, @RequestParam("pivotId") Long pivotId, @RequestParam("statusName") String statusName){
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            TokenModel model = authService.getTokenModel(token);
+            String message = "Extracted token: " + token;// remove "Bearer "
+
+            ApiResponseModel res = serviceImp.updateMemberJoinApplication(pivotId, statusName, model.getMemberId());
+            return helper.responseHelper(res);
+        } else {
+            String message = "No Bearer token found";
+            return ResponseEntity.ok(new ApiResponseModel(message, 400, null));
+        }
+    }
+
+    @GetMapping("viewMembersOfMinistries")
+    ResponseEntity<ApiResponseModel> viewMembersOfMinistries(@RequestParam("ministryId") Long ministryId, @RequestParam("query") String query, @RequestParam("page") int page){
+
+        ApiResponseModel res = serviceImp.viewMembersOfMinistries(ministryId, query, page);
+        return helper.responseHelper(res);
+    }
+
+    @GetMapping("viewTotalMembersPerMinistry")
+    ResponseEntity<ApiResponseModel>viewTotalMembersPerMinistry(@RequestParam("ministryId")Long ministryId){
+        ApiResponseModel res = serviceImp.viewTotalMembersPerMinistry(ministryId);
+        return helper.responseHelper(res);
+    }
+
+    @GetMapping("getTotalMinistryAndMembers")
+    ResponseEntity<ApiResponseModel>viewTotalMembersPerMinistry(){
+        ApiResponseModel res = serviceImp.getTotalMinistryAndMembers();
+        return helper.responseHelper(res);
+    }
 
 }

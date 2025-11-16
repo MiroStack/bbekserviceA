@@ -11,6 +11,7 @@ import com.bbek.BbekServiceA.entities.pivot.MinistryPivotEntity;
 import com.bbek.BbekServiceA.entities.reference.ApplicationStatusEntity;
 import com.bbek.BbekServiceA.entities.reference.DepartmentEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
+import com.bbek.BbekServiceA.model.ministry.CreateMinistryModel;
 import com.bbek.BbekServiceA.model.ministry.MinistryModel;
 import com.bbek.BbekServiceA.model.ministry.TotalMinistryModel;
 import com.bbek.BbekServiceA.repository.MemberRepo;
@@ -23,6 +24,7 @@ import com.bbek.BbekServiceA.repository.reference.DepartmentRepo;
 import com.bbek.BbekServiceA.service.MinistryService;
 import com.bbek.BbekServiceA.util.Config;
 import com.bbek.BbekServiceA.util.Dates;
+import com.bbek.BbekServiceA.util.ExceptionLogger;
 import com.bbek.BbekServiceA.util.SaveFile;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +34,15 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.swing.text.html.Option;
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.bbek.BbekServiceA.util.Config.getMinistryImagePath;
 import static com.bbek.BbekServiceA.util.Constant.*;
+import static java.lang.Integer.parseInt;
 
 @Service
 public class MinistryServiceImp implements MinistryService {
@@ -62,6 +67,9 @@ public class MinistryServiceImp implements MinistryService {
     @Autowired
     MemberRepo memberRepo;
 
+    @Autowired
+    ExceptionLogger exceptionLogger;
+
     private final ApiResponseModel res = new ApiResponseModel();
 
     @Override
@@ -73,7 +81,6 @@ public class MinistryServiceImp implements MinistryService {
         return ministryEntities.stream().map(m -> {
             Optional<MinistryStatusRfEntity> msEntityOptional = msRepo.findById(m.getStatusId());
             MinistryStatusRfEntity ministryStatusRfEntity = msEntityOptional.orElse(null);
-
             return new MinistryModel(
                     m.getId(),
                     m.getSchedule(),
@@ -94,53 +101,53 @@ public class MinistryServiceImp implements MinistryService {
 
     @Transactional
     @Override
-    public ApiResponseModel saveMinistry(MinistryEntity entity, boolean isUpdate, String statusName, String department, MultipartFile file) {
+    public ApiResponseModel saveMinistry(CreateMinistryModel model) {
         try {
-            MinistryStatusRfEntity statusRfEntity = msRepo.findByStatusName(statusName);
+            MinistryStatusRfEntity statusRfEntity = msRepo.findByStatusName(model.getStatus());
+            if(statusRfEntity == null) return new ApiResponseModel("Invalid status!", 400, null);
 
-            String ministryPath = Config.getMinistryImagePath();
-            String fileUploadPathImage = ministryPath + "\\" + ((DateTimeFormatter.ofPattern("yyyy-MM")).format(LocalDateTime.now()));
-            MinistryEntity entity1 = entity;
-            DepartmentEntity de = dRepo.findByDepartmentName(department);
-
-            String filePath = "";
-            if (isUpdate) {
-                Optional<MinistryEntity> entityOptional = mRepo.findById(entity.getId());
-                MinistryEntity oldEntity = entityOptional.orElse(null);
-                entity1.setFilepath(oldEntity.getFilepath());
-                entity1.setUpdatedDate(LocalDateTime.now());
-            }else{
-                entity1.setDepartmentId(de.getId());
-                entity1.setCreatedDate(LocalDateTime.now());
-            }
-            entity1.setStatusId(statusRfEntity.getId());
-
-            if(file != null){
-                File ROOT_BASE_PATH = new File(fileUploadPathImage);
-                if (!ROOT_BASE_PATH.exists()) {
-                    ROOT_BASE_PATH.mkdirs();
-                }
-                String[] ext = file.getOriginalFilename().split("\\.");
-                filePath = fileUploadPathImage + "\\" + new Dates().getCurrentDateTime1() + "-" + new SaveFile().generateRandomString() + "." + ext[ext.length - 1];
-                if (isUpdate) {
-                    new SaveFile().deleteFile(entity1.getFilepath());
-                }
-                entity1.setFilepath(filePath);
-                new SaveFile().saveFile(file, filePath);
-            }
-            mRepo.save(entity1);
-
-            res.setMessage(isUpdate ? "Ministry is updated successfully" : "Ministry is created successfully");
-            res.setStatusCode(isUpdate ? 200 : 201);
-            return res;
-
+            DepartmentEntity departmentEntity = dRepo.findByDepartmentName(model.getDepartment());
+            if(departmentEntity == null) return new ApiResponseModel("Invalid department!", 400, null);
+           if(model.isUpdate()){
+               Optional<MinistryEntity> meo = mRepo.findById(model.getId());
+               MinistryEntity me=meo.orElse(null);
+               if(me == null)return new ApiResponseModel("Ministry not found",404,null);
+               me.setMinistryName(model.getMinistryName());
+               me.setSchedule(model.getScheduleDay());
+               me.setLeader(model.getMinistryLeader());
+               me.setStatusId(statusRfEntity.getId());
+               me.setDescription(model.getDescription());
+               if(model.getMinistryImage() != null){
+                   String root = getMinistryImagePath();
+                   String filepath = new SaveFile().savedImage(root,model.getMinistryImage());
+                   me.setFilepath(filepath);
+               }
+               me.setCreatedDate(LocalDateTime.now());
+               me.setStartTime(LocalTime.parse(model.getStartTime()));
+               me.setEndTime(LocalTime.parse(model.getEndTime()));
+               me.setDepartmentId(departmentEntity.getId());
+               mRepo.save(me);
+           }else{
+               MinistryEntity entity = new MinistryEntity();
+               entity.setMinistryName(model.getMinistryName());
+               entity.setSchedule(model.getScheduleDay());
+               entity.setLeader(model.getMinistryLeader());
+               entity.setStatusId(statusRfEntity.getId());
+               entity.setDescription(model.getDescription());
+               entity.setMember(0);
+               String root = getMinistryImagePath();
+               String filepath = new SaveFile().savedImage(root,model.getMinistryImage());
+               entity.setFilepath(filepath);
+               entity.setCreatedDate(LocalDateTime.now());
+               entity.setStartTime(LocalTime.parse(model.getStartTime()));
+               entity.setEndTime(LocalTime.parse(model.getEndTime()));
+               entity.setDepartmentId(departmentEntity.getId());
+               mRepo.save(entity);
+           }
+            return new ApiResponseModel(model.isUpdate()?"Ministry updated successfully":"Ministry created successfully", model.isUpdate()?200:201, null);
         } catch (Exception e) {
-            mRepo.save(entity);
-            res.setMessage(FAILED);
-            res.setStatusCode(401);
-            e.printStackTrace();
-            return res;
-
+            exceptionLogger.logError(getClass().getSimpleName(), e);
+            return new ApiResponseModel("Something went wrong. Please try again.", 500, null);
         }
 
     }
@@ -198,7 +205,6 @@ public class MinistryServiceImp implements MinistryService {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -430,6 +436,9 @@ public class MinistryServiceImp implements MinistryService {
 
            Optional<MinistryEntity> ministryEntityOptional = mRepo.findById(mpe.getMinistryId());
            MinistryEntity ministryEntity = ministryEntityOptional.orElse(null);
+           int totalMember = ministryEntity.getMember()+1;
+           ministryEntity.setMember(totalMember);
+           mRepo.save(ministryEntity);
 
            Optional<MemberEntity> meo = memberRepo.findById(userId);
            MemberEntity me = meo.orElse(null);

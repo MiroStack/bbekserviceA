@@ -43,5 +43,6 @@ public interface EventService {
     ApiResponseModel updateMemberJoinEventApplication(Long pivotId, String statusName, Long userId);
     ApiResponseModel viewMembersOfEvents(Long eventId, String query, int page);
     ApiResponseModel viewTotalMemberPerEvent(Long eventId);
+    ApiResponseModel updateMemberEventJoinApplication(Long pivotId, String statusName, Long userId);
 
 }

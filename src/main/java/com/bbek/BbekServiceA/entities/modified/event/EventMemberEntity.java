@@ -1,4 +1,4 @@
-package com.bbek.BbekServiceA.entities.ministries;
+package com.bbek.BbekServiceA.entities.modified.event;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class MinistryMemberEntity {
+public class EventMemberEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -20,8 +20,8 @@ public class MinistryMemberEntity {
     @Column(name = "fullname")
     private String fullname;
 
-    @Column(name = "ministry_name")
-    private String ministryname;
+    @Column(name = "event_name")
+    private String eventName;
 
     @Column(name = "status_name")
     private String statusName;

@@ -1,6 +1,7 @@
 package com.bbek.BbekServiceA.controllers;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
+import com.bbek.BbekServiceA.entities.modified.event.EventMemberEntity;
 import com.bbek.BbekServiceA.entities.pivot.EventPivotEntity;
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 import com.bbek.BbekServiceA.model.TokenModel;
@@ -24,8 +25,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.bbek.BbekServiceA.util.Constant.BBEK;
-import static com.bbek.BbekServiceA.util.Constant.SUCCESS;
+import static com.bbek.BbekServiceA.util.Constant.*;
 
 @RestController
 @RequestMapping(BBEK)
@@ -39,6 +39,8 @@ public class EventController {
 
     @Autowired
     AuthService authService;
+
+
 
     @PostMapping(value = "/saveEvent", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseModel> saveMinistry(
@@ -161,13 +163,13 @@ public class EventController {
     @GetMapping("joinEvent")
     public ResponseEntity<ApiResponseModel> joinEvent(@RequestBody EventPivotEntity entity) {
         ApiResponseModel res = eService.joinEvent(entity);
-        return helper.response(res);
+        return helper.responseHelper(res);
     }
 
     @GetMapping("leaveEvent/{id}")
     public ResponseEntity<ApiResponseModel> leaveEvent(@PathVariable("id") Long id) {
         ApiResponseModel res = eService.leaveEvent(id);
-        return helper.response(res);
+        return helper.responseHelper(res);
     }
 
     @PostMapping("joinEvent")
@@ -180,9 +182,10 @@ public class EventController {
             String message = "Extracted token: " + token;// remove "Bearer "
             EventPivotEntity entity = new EventPivotEntity();
             entity.setEventId(eventId);
+            entity.setStatusId(2L);
             entity.setMemberId(model.getMemberId());
             ApiResponseModel res = eService.joinEvent(entity);
-            return helper.response(res);
+            return helper.responseHelper(res);
         } else {
             String message = "No Bearer token found";
             return ResponseEntity.ok(new ApiResponseModel(message, 400, null));
@@ -214,5 +217,33 @@ public class EventController {
         return ResponseEntity.ok(new ApiResponseModel(SUCCESS, 200, list));
     }
 
+
+    @GetMapping("getMembersPerEvent")
+    ResponseEntity<ApiResponseModel> getMembersPerEvent(@RequestParam("eventId") Long eventId, @RequestParam("query")String query, @RequestParam("page")int page){
+        ApiResponseModel res = eService.viewMembersOfEvents(eventId, query, page);
+        return helper.responseHelper(res);
+    }
+
+    @GetMapping("viewTotalMemberPerEvent")
+    ResponseEntity<ApiResponseModel> viewTotalMemberPerEvent(@RequestParam("eventId") Long eventId){
+        ApiResponseModel res = eService.viewTotalMemberPerEvent(eventId);
+        return helper.responseHelper(res);
+    }
+//
+//    @PutMapping("updateMemberEventJoinApplication")
+//    ResponseEntity<ApiResponseModel> updateMemberEventJoinApplication(HttpServletRequest request, @RequestParam("pivotId") Long pivotId, @RequestParam("statusName") String statusName){
+//        String authHeader = request.getHeader("Authorization");
+//        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+//            String token = authHeader.substring(7);
+//            TokenModel model = authService.getTokenModel(token);
+//            String message = "Extracted token: " + token;// remove "Bearer "
+//
+//            ApiResponseModel res = eService.updateMemberEventJoinApplication(pivotId, statusName, model.getMemberId());
+//            return helper.responseHelper(res);
+//        } else {
+//            String message = "No Bearer token found";
+//            return ResponseEntity.ok(new ApiResponseModel(message, 400, null));
+//        }
+//    }
 
 }

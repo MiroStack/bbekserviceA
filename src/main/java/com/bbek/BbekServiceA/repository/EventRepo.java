@@ -1,6 +1,8 @@
 package com.bbek.BbekServiceA.repository;
 
 import com.bbek.BbekServiceA.entities.EventEntity;
+import com.bbek.BbekServiceA.entities.ministries.MinistryMemberEntity;
+import com.bbek.BbekServiceA.entities.modified.event.EventMemberEntity;
 import com.bbek.BbekServiceA.entities.modified.event.ModifiedEventEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -136,5 +138,31 @@ public interface EventRepo extends JpaRepository<EventEntity, Long> {
             @Param("eventId") Long eventId
     );
 
+    @Query(value = """
+            SELECT\s
+            ept.id,
+            CONCAT(up.firstname,' ',up.middlename,' ',up.middlename) as fullname,
+            e.event_name,
+            mas.status_name,
+            ept.created_dt
+            FROM user_profile up
+            LEFT JOIN tbl_member tm ON up.id = tm.profile_id
+            RIGHT JOIN event_pivot_table ept ON tm.id = ept.member_id
+            LEFT JOIN event e ON ept.event_id = e.id
+            LEFT JOIN member_application_statuses mas ON ept.status_id = mas.id
+            WHERE e.id = :eventId
+            AND(
+               CONCAT(up.firstname, ' ', up.middlename, ' ', up.lastname) LIKE CONCAT('%', :query, '%')
+               or mas.status_name  LIKE CONCAT('%', :query, '%')
+            )
+            LIMIT 20
+            OFFSET 0
+            """, nativeQuery = true)
+    List<EventMemberEntity> findAllEventMembers(@Param("eventId") Long eventId, @Param("query") String query, @Param("numberOfRowsToSkip") int numberOfRowsToSkip);
+
+    @Query(value = """
+            SELECT COUNT(*) FROM event_pivot_table WHERE status_id = 2
+            """, nativeQuery = true)
+    Long totalEventMembers();
 
 }
