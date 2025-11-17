@@ -299,7 +299,7 @@ public class MinistryServiceImp implements MinistryService {
             entity1.setCreatedDt(LocalDateTime.now());
             if(entity1 != null) return new ApiResponseModel("You already joined in this ministry", 400, null);
             MinistryPivotEntity me = mpRepo.save(entity);
-            return new ApiResponseModel("You successfully joined in this ministry.", 200, me);
+            return new ApiResponseModel("Your application is successfully submitted.", 200, me);
         } catch (Exception e) {
             return new ApiResponseModel("Can't process your request. Please try again later", 500, null);
         }
