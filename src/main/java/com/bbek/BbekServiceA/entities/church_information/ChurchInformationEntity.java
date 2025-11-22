@@ -43,4 +43,7 @@ public class ChurchInformationEntity {
 
     @Column(name="modified_dt")
     private LocalDateTime modifiedDt;
+
+    @Column(name = "logo_image_path")
+    private String logoImagePath;
 }

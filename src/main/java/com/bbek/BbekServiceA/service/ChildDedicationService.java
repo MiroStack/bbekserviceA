@@ -2,9 +2,13 @@ package com.bbek.BbekServiceA.service;
 
 import com.bbek.BbekServiceA.model.ApiResponseModel;
 
-public interface ChildDedicationService {
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-    ApiResponseModel requestChildDedication(Long memberId, String memberName, String childName);
-    ApiResponseModel updateChildDedication();
+public interface ChildDedicationService {
+    ApiResponseModel listOfChildDedication(String query, int pages, String statusName);
+    ApiResponseModel  requestChildDedication(Long memberId,  String guardianName, String childName, LocalDate birthdate, LocalDateTime dedicationDt, String contactNo);
+    ApiResponseModel updateChildDedication(Long reqId, Long memberId,  String childName, String guardianName, LocalDate birthdate,  LocalDateTime dedicationDt, String contactNo, Long statusId);
     ApiResponseModel viewChildDedicationDetails(Long reqId);
+    ApiResponseModel getKPI();
 }

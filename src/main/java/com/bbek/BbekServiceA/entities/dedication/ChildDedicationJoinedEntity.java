@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+
 @Entity
-@Table(name = "child_dedication")
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ChildDedicationEntity {
+@AllArgsConstructor
+@Data
+public class ChildDedicationJoinedEntity {
     @Column(name ="id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +28,8 @@ public class ChildDedicationEntity {
     @Column(name = "guardian_name")
     private String guardianName;
 
-    @Column(name = "status")
-    private Long status;
+    @Column(name = "status_name")
+    private String status;
 
     @Column(name = "dedication_date")
     private LocalDateTime dedicationDt;
@@ -42,12 +42,6 @@ public class ChildDedicationEntity {
 
     @Column(name = "created_dt")
     private LocalDateTime createdDt;
-
-    @Column(name = "created_by_id")
-    private Long createdById;
-
-    @Column(name = "modified_by_id")
-    private Long modifiedById;
 
 
 }
