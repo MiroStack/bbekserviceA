@@ -59,7 +59,9 @@ public class SecurityConfig {
                                 "/bbek/positions",
                                 "/bbek/ministriesOfAllLadies/**",
                                 "/bbek/ministriesOfAllMen/**",
-                                "/bbek/ministriesOfAllYoungPeople/**" )
+                                "/bbek/ministriesOfAllYoungPeople/**",
+                                "/bbek/view_logo",
+                                "/bbek/view_church_information")
                         .permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

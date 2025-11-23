@@ -27,6 +27,9 @@ public class Config {
     public static String getEventImagePath() {
         return getPropertyValue("system.event_filePath");
     }
+    public static String getChurchInformationImagePath() {
+        return getPropertyValue("system.information_filePath");
+    }
 
 
 //    public static String getApiUsername() {

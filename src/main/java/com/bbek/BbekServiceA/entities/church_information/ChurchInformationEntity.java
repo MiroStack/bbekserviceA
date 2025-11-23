@@ -35,6 +35,9 @@ public class ChurchInformationEntity {
     @Column(name = "mision")
     private String mission;
 
+    @Column(name ="address")
+    private String address;
+
     @Column(name = "vision")
     private String vision;
 
