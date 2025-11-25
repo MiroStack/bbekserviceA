@@ -35,7 +35,7 @@ public class EventPivotEntity {
     @Column(name = "modified_dt")
     private LocalDateTime modifiedDt;
 
-    @Column(name = "modified_by")
+    @Column(name = "modfied_by")
     private Long modifiedBy;
 
 }

@@ -293,12 +293,24 @@ public class MinistryServiceImp implements MinistryService {
     @Override
     public ApiResponseModel joinMinistry(MinistryPivotEntity entity) {
         try{
+            MinistryEntity entity1 = new MinistryEntity();
+             Optional<MinistryEntity> meo = mRepo.findById(entity.getMinistryId());
+             entity1 = meo.orElse(null);
+            if(entity1 == null) return new ApiResponseModel("Ministry not found.", 404, null);
 
-            MinistryPivotEntity entity1 = mpRepo.findByMinistryId(entity.getMinistryId());
-            entity1.setStatusId(1L);
-            entity1.setCreatedDt(LocalDateTime.now());
-            if(entity1 != null) return new ApiResponseModel("You already joined in this ministry", 400, null);
-            MinistryPivotEntity me = mpRepo.save(entity);
+            List<MinistryPivotEntity> ministryPivotEntityList = mpRepo.findByMemberId(entity.getMemberId());
+            for(MinistryPivotEntity entity2:ministryPivotEntityList){
+                if(entity2.getMinistryId() == entity.getMinistryId()){
+                    return new ApiResponseModel("You already joined in this ministry", 400, null);
+                }
+            }
+            MinistryPivotEntity mpe = new MinistryPivotEntity();
+            mpe.setStatusId(1L);
+            mpe.setMinistryId(entity.getMinistryId());
+            mpe.setMemberId(entity.getMemberId());
+            mpe.setCreatedDt(LocalDateTime.now());
+
+            MinistryPivotEntity me = mpRepo.save(mpe);
             return new ApiResponseModel("Your application is successfully submitted.", 200, me);
         } catch (Exception e) {
             return new ApiResponseModel("Can't process your request. Please try again later", 500, null);

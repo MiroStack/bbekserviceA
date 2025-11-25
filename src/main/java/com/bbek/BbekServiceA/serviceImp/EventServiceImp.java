@@ -374,11 +374,26 @@ public class EventServiceImp implements EventService {
     @Override
     public ApiResponseModel joinEvent(EventPivotEntity entity) {
 
-        try {
-            EventPivotEntity entity1 = epRepo.findByEventId(entity.getEventId());
-            if(entity1 != null) return new ApiResponseModel("You already joined in this event.", 400, null);
-            EventPivotEntity epe = epRepo.save(entity);
-            return new ApiResponseModel("You successfully joined in this event.", 200, epe);
+        try{
+            EventEntity entity1 = new EventEntity();
+            Optional<EventEntity> meo = eRepo.findById(entity.getEventId());
+            entity1 = meo.orElse(null);
+            if(entity1 == null) return new ApiResponseModel("Event not found.", 404, null);
+
+            List<EventPivotEntity> ministryPivotEntityList = epRepo.findByMemberId(entity.getMemberId());
+            for(EventPivotEntity entity2:ministryPivotEntityList){
+                if(entity2.getEventId() == entity.getEventId()){
+                    return new ApiResponseModel("You already joined in this event", 400, null);
+                }
+            }
+            EventPivotEntity mpe = new EventPivotEntity();
+            mpe.setStatusId(1L);
+            mpe.setEventId(entity.getEventId());
+            mpe.setMemberId(entity.getMemberId());
+            mpe.setCreatedDt(LocalDateTime.now());
+
+            EventPivotEntity me = epRepo.save(mpe);
+            return new ApiResponseModel("Your application is successfully submitted.", 200, me);
         } catch (Exception e) {
             return new ApiResponseModel("Can't process your request. Please try again later", 500, null);
         }
